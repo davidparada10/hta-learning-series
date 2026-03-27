@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTA Learning Series</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif; background: #F0F3F7+ color: #222; min-height: 100vh; }
+    button { font-family: inherit; }
+    input { font-family: inherit; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState } = React;
+
+// ─── PALETTE ─────────────────────────────────────────────────────────────────
+const C = {
+  navy:   '#1B4F72',
+  blue:   '#2980B9',
+  blueL:  '#D6EAF8',
+  green:  '#27AE60',
+  greenL: '#EAF7EE',
+  red:    '#E74C3C',
+  redL:   '#FDEDEC',
+  amber:  '#F39C12',
+  amberL: '#FEF9E7',
+  purple: '#8E44AD',
+  purpleL:'#F4ECF7',
+  orange: '#E67E22',
+  orangeL:'#FDF2E9',
+  gray:   '#F8F9FA',
+  border: '#dee2e6',
+  muted:  '#888',
+  text:   '#333',
+}
+
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const DOMAINS = [
+  {
+    id: 1,
+    title: 'Real Estate Development',
+    color: C.navy,
+    accent: C.blue,
+    icon: '🏗️',
+    description: 'Pro forma fundamentals, capital stack, deal analysis, and entitlement',
+    weeks: [
+      {
+        week: 1,
+        title: 'Pro Forma Fundamentals & Cap Rates',
+        status: 'active',
+        sessions: [
+          { day: 'Mon Mar 30', title: 'Session 1 — Vocabulary: GPR, EGI, NOI, CFBT, Cap Rate, YOC, LTV, DSCR' },
+          { day: 'Wed Apr 1',  title: 'Session 2 — Build First Pro Forma in Excel' },
+          { day: 'Thu Apr 3',  title: 'Session 3 — Cap Rates on Real SoCal Deals (LoopNet, CBRE)' },
+          { day: 'Fri Apr 4',  title: 'Session 4 — Stress Test Model + 20-Question Quiz' },
+        ],
+        vocabulary: [
+          {
+            term: 'GPR', full: 'Gross Potential Rent',
+            definition: 'The maximum rental income a property could generate if 100% occupied at market rents for the full year. It\'s your ceiling — the starting point of every pro forma before any losses.',
+            example: '100 units × $2,000/mo × 12 = $2,400,000 GPR',
+          },
+          {
+            term: 'EGI', full: 'Effective Gross Income',
+            definition: 'GPR minus vacancy & credit loss, plus ancillary income (parking, laundry, storage). This is the income you actually expect to collect — realistic revenue after accounting for empty units and non-paying tenants.',
+            example: 'GPR $2,400,000 − 5% vacancy ($120,000) + $24,000 other income = $2,304,000 EGI',
+          },
+          {
+            term: 'NOI', full: 'Net Operating Income',
+            definition: 'EGI minus all operating expenses (taxes, insurance, management, maintenance, utilities, reserves). NOI is the property\'s earnings before debt service — the core measure of operating performance.',
+            example: 'EGI $2,304,000 − OpEx $768,000 = $1,536,000 NOI',
+          },
+          {
+            term: 'CFBT', full: 'Cash Flow Before Tax',
+            definition: 'NOI minus debt service (principal + interest). This is the actual cash in your pocket before taxes. If CFBT is negative, the property doesn\'t cover its mortgage from operations.',
+            example: 'NOI $1,536,000 − Annual Debt Service $960,000 = $576,000 CFBT',
+          },
+          {
+            term: 'Cap Rate', full: 'Capitalization Rate',
+            definition: 'NOI divided by property value (or purchase price). Expresses the property\'s unlevered yield — what you\'d earn in an all-cash purchase. Lower cap rate = higher price relative to income = hotter market.',
+            example: 'NOI $1,536,000 ÷ Value $28,000,000 = 5.49% Cap Rate',
+          },
+          {
+            term: 'YOC', full: 'Yield on Cost',
+            definition: 'Stabilized NOI divided by total project cost (land + construction + soft costs). Your development yield — what you\'re building toward. Must exceed market cap rate by at least 100–150 bps to justify development risk.',
+            example: 'NOI $1,800,000 ÷ Total Cost $30,000,000 = 6.0% YOC vs. 5.0% market cap = 100 bps spread ✓',
+          },
+          {
+            term: 'LTV', full: 'Loan-to-Value',
+            definition: 'Loan amount divided by property value. Most lenders cap at 65–75% LTV for construction/permanent loans. Higher LTV = more leverage = higher risk for borrower and lender.',
+            example: '$18,000,000 loan ÷ $28,000,000 value = 64.3% LTV',
+          },
+          {
+            term: 'DSCR', full: 'Debt Service Coverage Ratio',
+            definition: 'NOI divided by annual debt service. Lenders require ≥1.25x DSCR (some want 1.30x). Below 1.0x means the property can\'t cover loan payments from operations — a red flag for lenders.',
+            example: 'NOI $1,536,000 ÷ Debt Service $960,000 = 1.60x DSCR ✓ (above 1.25x minimum)',
+          },
+        ],
+        concepts: [
+          {
+            heading: 'The Pro Forma Income Waterfall',
+            body: 'Every real estate pro forma flows top to bottom: GPR → subtract vacancy → add ancillary income → EGI → subtract operating expenses → NOI → subtract debt service → CFBT. Each step removes a layer of "ideal" income to get to the real number. This waterfall structure is universal — whether you\'re underwriting a 10-unit apartment or a 500,000 SF industrial park.',
+          },
+          {
+            heading: 'The Four Deal Checks',
+            body: 'Before any deal moves forward at HTA/Infinity, it must pass four checks: (1) NOI — does the property generate sufficient operating income? (2) Spread — is YOC at least 100–150 bps above market cap rate? (3) Stack — can the capital structure support the deal at acceptable LTV and DSCR? (4) Entitlement — what can actually be built on this site, and what does the approval timeline look like?',
+          },
+          {
+            heading: 'SoCal Cap Rate Benchmarks (2024–2025)',
+            body: 'Industrial: 4.25–5.25% — logistics-driven demand keeps rates compressed. Multifamily: 4.50–5.50% — chronic housing shortage supports values. Office: 6.50–8.50%+ — elevated risk premium post-COVID remote work shift. These benchmarks are your reference point when evaluating any SoCal deal.',
+          },
+          {
+            heading: 'Capital Stack',
+            body: 'The capital stack describes who funds a deal and in what priority order. Senior debt (65–70% of cost) is first in line — lowest risk, lowest return. Mezzanine / preferred equity fills the gap, typically 10–15% of cost. Common equity (GP + LP) is last in — highest risk, highest potential return. The GP (the developer) typically contributes 10–20% of equity but manages the deal.',
+          },
+        ],
+      },
+      { week: 2,  title: 'Land Acquisition & Site Analysis',          status: 'upcoming' },
+      { week: 3,  title: 'Development Feasibility & Entitlement',      status: 'upcoming' },
+      { week: 4,  title: 'Project Financing & Capital Stack',           status: 'upcoming' },
+      { week: 5,  title: 'Design & Predevelopment',                     status: 'upcoming' },
+      { week: 6,  title: 'Construction Management Basics',              status: 'upcoming' },
+      { week: 7,  title: 'Lease-Up & Stabilization',                    status: 'upcoming' },
+      { week: 8,  title: 'Disposition & Exit Strategies',               status: 'upcoming' },
+      { week: 9,  title: 'Affordable & Mixed-Use Development',          status: 'upcoming' },
+      { week: 10, title: 'SoCal Market Deep Dive',                      status: 'upcoming' },
+      { week: 11, title: 'Case Study: Full Deal Underwrite',            status: 'upcoming' },
+      { week: 12, title: 'Final Review & Assessment',                   status: 'upcoming' },
+    ],
+  },
+  {
+    id: 2,
+    title: 'Commercial Construction',
+    color: '#17202A',
+    accent: C.orange,
+    icon: '🔨',
+    description: 'Project delivery, GC/sub relationships, pay applications, and field operations',
+    weeks: [
+      { week: 1,  title: 'Project Delivery Methods',              status: 'upcoming' },
+      { week: 2,  title: 'Estimating & Bid Process',              status: 'upcoming' },
+      { week: 3,  title: 'Contracts: GC & Subcontractor',         status: 'upcoming' },
+      { week: 4,  title: 'Scheduling & Critical Path',            status: 'upcoming' },
+      { week: 5,  title: 'Pay Applications & Lien Waivers',       status: 'upcoming' },
+      { week: 6,  title: 'RFIs, Submittals & Change Orders',      status: 'upcoming' },
+      { week: 7,  title: 'Site Safety & Quality Control',         status: 'upcoming' },
+      { week: 8,  title: 'MEP Coordination',                      status: 'upcoming' },
+      { week: 9,  title: 'Closeout & Punch List',                 status: 'upcoming' },
+      { week: 10, title: 'Cost Control & Reporting',              status: 'upcoming' },
+      { week: 11, title: 'SoCal Construction Market',             status: 'upcoming' },
+      { week: 12, title: 'Final Review & Assessment',             status: 'upcoming' },
+    ],
+  },
+  {
+    id: 3,
+    title: 'Contracts & Legal',
+    color: '#1A5276',
+    accent: C.green,
+    icon: '⚖️',
+    description: 'AIA contracts, lien rights, dispute resolution, and risk allocation',
+    weeks: [
+      { week: 1,  title: 'AIA Contract Fundamentals',             status: 'upcoming' },
+      { week: 2,  title: 'Owner-Contractor Agreements',           status: 'upcoming' },
+      { week: 3,  title: 'Subcontractor Agreements',              status: 'upcoming' },
+      { week: 4,  title: 'Lien Law in California',               status: 'upcoming' },
+      { week: 5,  title: 'Insurance & Bonding',                   status: 'upcoming' },
+      { week: 6,  title: 'Dispute Resolution & Claims',           status: 'upcoming' },
+      { week: 7,  title: 'Design Professional Agreements',        status: 'upcoming' },
+      { week: 8,  title: 'Public Works & Prevailing Wage',        status: 'upcoming' },
+      { week: 9,  title: 'Entitlement & Land Use Law',           status: 'upcoming' },
+      { week: 10, title: 'Due Diligence & Purchase Contracts',   status: 'upcoming' },
+      { week: 11, title: 'JV & Partnership Agreements',          status: 'upcoming' },
+      { week: 12, title: 'Final Review & Assessment',             status: 'upcoming' },
+    ],
+  },
+  {
+    id: 4,
+    title: 'Market & Investment',
+    color: '#4A235A',
+    accent: C.purple,
+    icon: '📈',
+    description: 'Market analysis, investment underwriting, financing, and portfolio strategy',
+    weeks: [
+      { week: 1,  title: 'SoCal Market Overview',                status: 'upcoming' },
+      { week: 2,  title: 'Reading Market Reports (CBRE, JLL)',   status: 'upcoming' },
+      { week: 3,  title: 'Investment Return Metrics',            status: 'upcoming' },
+      { week: 4,  title: 'Debt Markets & Financing',             status: 'upcoming' },
+      { week: 5,  title: 'Industrial Asset Class Deep Dive',     status: 'upcoming' },
+      { week: 6,  title: 'Multifamily Investment',               status: 'upcoming' },
+      { week: 7,  title: 'Retail & Mixed-Use Analysis',          status: 'upcoming' },
+      { week: 8,  title: 'Office Market Dynamics',               status: 'upcoming' },
+      { week: 9,  title: 'Deal Sourcing & Screening',            status: 'upcoming' },
+      { week: 10, title: 'Portfolio Strategy',                   status: 'upcoming' },
+      { week: 11, title: 'Investor Reporting & IRR',             status: 'upcoming' },
+      { week: 12, title: 'Final Review & Assessment',            status: 'upcoming' },
+    ],
+  },
+]
+
+const QUIZ = [
+  {
+    q: 'What does GPR stand for, and what does it represent?',
+    opts: ['Gross Property Return — total profit from a sale', 'Gross Potential Rent — maximum income if 100% occupied at market rents', 'General Project Revenue — total project income including fees', 'Gross Pro Forma Return — projected investment yield'],
+    a: 1,
+    exp: 'GPR (Gross Potential Rent) is your ceiling — the maximum rental income assuming full occupancy at market rents for the entire year. It\'s the top line of every pro forma.',
+  },
+  {
+    q: 'EGI is calculated as:',
+    opts: ['GPR + Operating Expenses', 'NOI + Debt Service', 'GPR − Vacancy & Credit Loss + Ancillary Income', 'GPR − All Operating Costs'],
+    a: 2,
+    exp: 'EGI = GPR minus vacancy & credit loss, plus ancillary income (parking, laundry, etc.). It\'s the income you realistically expect to collect.',
+  },
+  {
+    q: 'A property has GPR of $1,200,000, vacancy of 5%, and ancillary income of $20,000. What is EGI?',
+    opts: ['$1,160,000', '$1,140,000', '$1,120,000', '$1,080,000'],
+    a: 0,
+    exp: 'EGI = $1,200,000 − (5% × $1,200,000) + $20,000 = $1,200,000 − $60,000 + $20,000 = $1,160,000',
+  },
+  {
+    q: 'NOI is best described as:',
+    opts: ['Cash available after paying the mortgage', 'Property income before operating expenses', 'EGI minus all operating expenses, before debt service', 'Total revenue minus total project cost'],
+    a: 2,
+    exp: 'NOI = EGI minus operating expenses (taxes, insurance, management, maintenance, utilities, reserves). It excludes debt service — it\'s the property\'s operating profit regardless of how it\'s financed.',
+  },
+  {
+    q: 'A property has EGI of $800,000 and operating expenses of $280,000. Annual debt service is $320,000. What is NOI?',
+    opts: ['$200,000', '$480,000', '$520,000', '$1,120,000'],
+    a: 2,
+    exp: 'NOI = EGI − Operating Expenses = $800,000 − $280,000 = $520,000. Debt service is not subtracted from NOI — that comes later when calculating CFBT.',
+  },
+  {
+    q: 'CFBT (Cash Flow Before Tax) equals:',
+    opts: ['EGI minus operating expenses', 'NOI minus debt service', 'GPR minus all costs', 'NOI minus taxes'],
+    a: 1,
+    exp: 'CFBT = NOI − Annual Debt Service. This is the actual cash you pocket from operations before paying income taxes.',
+  },
+  {
+    q: 'The cap rate formula is:',
+    opts: ['NOI ÷ Loan Amount', 'NOI ÷ Property Value', 'CFBT ÷ Equity Invested', 'EGI ÷ Purchase Price'],
+    a: 1,
+    exp: 'Cap Rate = NOI ÷ Property Value (or purchase price). It expresses the unlevered yield — what you\'d earn if you paid all cash for the property.',
+  },
+  {
+    q: 'A property generates $500,000 NOI and is purchased for $9,500,000. What is the cap rate?',
+    opts: ['4.76%', '5.00%', '5.26%', '4.50%'],
+    a: 2,
+    exp: 'Cap Rate = $500,000 ÷ $9,500,000 = 5.263%, rounded to 5.26%.',
+  },
+  {
+    q: 'YOC (Yield on Cost) is used to:',
+    opts: ['Calculate the loan-to-value ratio', 'Measure how much debt a deal can support', 'Assess whether a development project creates enough spread over market cap rates', 'Determine the effective tax rate on a disposition'],
+    a: 2,
+    exp: 'YOC = Stabilized NOI ÷ Total Project Cost. It\'s your development yield — it must exceed the market cap rate by 100–150+ bps to justify the risk, time, and complexity of ground-up development.',
+  },
+  {
+    q: 'A developer spends $25,000,000 all-in and projects stabilized NOI of $1,500,000. Market cap rates are 5.25%. Is this deal viable?',
+    opts: ['Yes — YOC of 6.0% gives a 75 bps spread, which is acceptable', 'No — YOC of 6.0% gives a 75 bps spread, which is below the 100–150 bps minimum', 'Yes — YOC equals the market cap rate, which is break-even', 'No — the project cost is too high regardless of yield'],
+    a: 1,
+    exp: 'YOC = $1,500,000 ÷ $25,000,000 = 6.0%. Spread = 6.0% − 5.25% = 75 bps. This is below the 100–150 bps minimum. The deal needs to either increase NOI or reduce costs.',
+  },
+  {
+    q: 'LTV stands for Loan-to-Value. A $15M loan on a $22M property has an LTV of:',
+    opts: ['63.6%', '68.2%', '73.3%', '58.3%'],
+    a: 1,
+    exp: 'LTV = $15,000,000 ÷ $22,000,000 = 68.18%, approximately 68.2%.',
+  },
+  {
+    q: 'Most lenders require a minimum DSCR of:',
+    opts: ['1.00x', '1.10x', '1.25x', '1.50x'],
+    a: 2,
+    exp: 'Most lenders require DSCR ≥ 1.25x (some require 1.30x). This ensures the property generates 25% more NOI than needed to cover debt payments — a cushion against income volatility.',
+  },
+  {
+    q: 'A property has NOI of $720,000 and annual debt service of $600,000. What is the DSCR — and does it pass?',
+    opts: ['1.20x — fails (below 1.25x minimum)', '1.20x — passes', '1.25x — passes (exactly at minimum)', '1.30x — passes'],
+    a: 0,
+    exp: 'DSCR = $720,000 ÷ $600,000 = 1.20x. This is below the typical 1.25x minimum — most lenders would require additional debt reduction or income improvement before approving.',
+  },
+  {
+    q: 'Which SoCal cap rate range is correct for industrial properties (2024–2025)?',
+    opts: ['6.50–8.50%', '3.00–4.00%', '4.25–5.25%', '5.50–6.50%'],
+    a: 2,
+    exp: 'SoCal industrial cap rates are 4.25–5.25%, compressed by strong logistics and e-commerce demand. Industrial is the tightest-yielding major asset class in the region.',
+  },
+  {
+    q: 'Why are office cap rates significantly higher than industrial in SoCal?',
+    opts: ['Office properties have higher NOI', 'Office faces elevated risk premium due to remote work trends reducing demand', 'Office properties depreciate faster', 'Office has lower property taxes'],
+    a: 1,
+    exp: 'SoCal office cap rates are 6.50–8.50%+. The elevated cap reflects higher perceived risk from remote/hybrid work trends reducing office demand post-COVID. Higher risk = lower price relative to income = higher cap rate.',
+  },
+  {
+    q: 'In the capital stack, which position has the LOWEST risk and LOWEST expected return?',
+    opts: ['Common Equity (LP)', 'Mezzanine Debt', 'Senior Debt', 'GP Promote'],
+    a: 2,
+    exp: 'Senior debt is first in line for repayment and has the lowest risk. Because it\'s most protected, lenders accept a lower return (interest rate). Common equity is last in — highest risk, highest potential upside.',
+  },
+  {
+    q: 'The "Four Deal Checks" at HTA/Infinity are:',
+    opts: ['Price, Rent, Vacancy, Expenses', 'NOI, Spread, Stack, Entitlement', 'LTV, DSCR, Cap Rate, YOC', 'GPR, EGI, NOI, CFBT'],
+    a: 1,
+    exp: 'The four deal checks: NOI (operating income check), Spread (YOC vs. market cap rate ≥ 100–150 bps), Stack (capital structure — LTV and DSCR), Entitlement (what can be built and on what timeline).',
+  },
+  {
+    q: 'Development spread is defined as:',
+    opts: ['The difference between asking price and purchase price', 'YOC minus the market cap rate', 'NOI divided by total equity invested', 'The gap between debt and equity in the capital stack'],
+    a: 1,
+    exp: 'Development spread = YOC − Market Cap Rate. A minimum spread of 100–150 bps (1.0–1.5%) is required to justify the risk, time, and uncertainty of development vs. buying an existing stabilized asset.',
+  },
+  {
+    q: 'If a developer\'s YOC is 5.75% and market cap rates are 5.00%, the development spread is:',
+    opts: ['75 bps — below the 100–150 bps minimum, deal needs work', '75 bps — above minimum, deal proceeds', '125 bps — above minimum, deal proceeds', '175 bps — well above minimum, proceed'],
+    a: 0,
+    exp: 'Spread = 5.75% − 5.00% = 75 bps. This is below the 100–150 bps minimum. The project needs to either increase NOI, reduce costs, or be reconsidered.',
+  },
+  {
+    q: 'A 5% vacancy rate on a $2,000,000 GPR property reduces EGI by:',
+    opts: ['$200,000', '$100,000', '$2,000 per unit', '$50,000'],
+    a: 1,
+    exp: '$2,000,000 × 5% = $100,000 in vacancy/credit loss. This is subtracted from GPR (along with credit losses) to arrive at EGI before adding ancillary income.',
+  },
+]
+
+const CAP_DATA = {
+  industrial:  { label: 'Industrial',  min: 4.25, max: 5.25, color: C.orange,  driver: 'Logistics & e-commerce demand keeps rates compressed. SoCal industrial vacancy near historic lows.' },
+  multifamily: { label: 'Multifamily', min: 4.50, max: 5.50, color: C.blue,    driver: 'Chronic housing shortage and rent control laws support valuations. Strong long-term demand fundamentals.' },
+  office:      { label: 'Office',      min: 6.50, max: 8.50, color: C.purple,  driver: 'Elevated risk premium from remote/hybrid work trends. Higher cap = lower price relative to income.' },
+  retail:      { label: 'Retail',      min: 5.00, max: 7.00, color: C.green,   driver: 'Mixed outlook. Grocery-anchored retail performs; power centers and malls face significant headwinds.' },
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const fmtUSD  = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+const fmtPct  = n => n.toFixed(2) + '%'
+const fmtX    = n => n.toFixed(2) + 'x'
+
+// ─── STYLES (inline object helpers) ─────────────────────────────────────────
+const pill = (active, color) => ({
+  padding: '0.35rem 1rem',
+  borderRadius: '20px',
+  border: `2px solid ${active ? color : C.border}`,
+  background: active ? color : 'white',
+  color: active ? 'white' : C.muted,
+  fontWeight: 600,
+  fontSize: '0.82rem',
+  cursor: 'pointer',
+  transition: 'all 0.18s',
+})
+
+const card = (extra = {}) => ({
+  background: 'white',
+  borderRadius: '12px',
+  padding: '1.25rem',
+  boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+  ...extra,
+})
+
+// ─── PRO FORMA CALCULATOR ────────────────────────────────────────────────────
+function ProFormaCalc() {
+  const [inp, setInp] = useState({
+    units: 50, avgRent: 2500, vacPct: 5, ancillary: 15000,
+    opExPct: 35, loan: 7500000, rate: 6.5, term: 30,
+    cost: 12000000, value: 13500000,
+  })
+
+  const set = (k, v) => setInp(p => ({ ...p, [k]: parseFloat(v) || 0 }))
+
+  const GPR  = inp.units * inp.avgRent * 12
+  const vacL = GPR * (inp.vacPct / 100)
+  const EGI  = GPR - vacL + inp.ancillary
+  const opEx = EGI * (inp.opExPct / 100)
+  const NOI  = EGI - opEx
+  const mr   = inp.rate / 100 / 12
+  const np   = inp.term * 12
+  const mp   = inp.loan * (mr * Math.pow(1 + mr, np)) / (Math.pow(1 + mr, np) - 1)
+  const DS   = mp * 12
+  const CFBT = NOI - DS
+  const capR = inp.value > 0 ? (NOI / inp.value) * 100 : 0
+  const YOC  = inp.cost  > 0 ? (NOI / inp.cost)  * 100 : 0
+  const LTV  = inp.value > 0 ? (inp.loan / inp.value) * 100 : 0
+  const DSCR = DS > 0 ? NOI / DS : 0
+  const spreadBps = Math.round((YOC - capR) * 100)
+
+  const fields = [
+    { label: 'Units',                    key: 'units',     prefix: '',  suffix: '' },
+    { label: 'Avg Monthly Rent',         key: 'avgRent',   prefix: '$', suffix: '' },
+    { label: 'Vacancy Rate',             key: 'vacPct',    prefix: '',  suffix: '%' },
+    { label: 'Ancillary Income (Annual)',key: 'ancillary', prefix: '$', suffix: '' },
+    { label: 'Operating Expense Ratio',  key: 'opExPct',   prefix: '',  suffix: '%' },
+    { label: 'Loan Amount',              key: 'loan',      prefix: '$', suffix: '' },
+    { label: 'Interest Rate',            key: 'rate',      prefix: '',  suffix: '%' },
+    { label: 'Loan Term (years)',        key: 'term',      prefix: '',  suffix: '' },
+    { label: 'Total Project Cost',       key: 'cost',      prefix: '$', suffix: '' },
+    { label: 'Property Value',           key: 'value',     prefix: '$', suffix: '' },
+  ]
+
+  const waterfall = [
+    { label: 'Gross Potential Rent (GPR)',                  val: fmtUSD(GPR),   color: C.navy,  bold: true,  indent: false },
+    { label: `− Vacancy & Credit Loss (${inp.vacPct}%)`,   val: `(${fmtUSD(vacL)})`, color: C.red, bold: false, indent: true },
+    { label: '+ Ancillary Income',                          val: fmtUSD(inp.ancillary), color: C.green, bold: false, indent: true },
+    { label: 'Effective Gross Income (EGI)',                val: fmtUSD(EGI),   color: C.blue,  bold: true,  indent: false },
+    { label: `− Operating Expenses (${inp.opExPct}% of EGI)`, val: `(${fmtUSD(opEx)})`, color: C.red, bold: false, indent: true },
+    { label: 'Net Operating Income (NOI)',                  val: fmtUSD(NOI),   color: C.navy,  bold: true,  indent: false },
+    { label: '− Annual Debt Service',                       val: `(${fmtUSD(DS)})`, color: C.red, bold: false, indent: true },
+    { label: 'Cash Flow Before Tax (CFBT)',                 val: fmtUSD(CFBT),  color: CFBT >= 0 ? C.green : C.red, bold: true, indent: false },
+  ]
+
+  const metrics = [
+    { label: 'Cap Rate',  val: fmtPct(capR), pass: null,       note: 'NOI ÷ Value'   },
+    { label: 'YOC',       val: fmtPct(YOC),  pass: null,       note: 'NOI ÷ Cost'    },
+    { label: 'LTV',       val: fmtPct(LTV),  pass: LTV <= 75,  note: LTV <= 75 ? '✓ ≤ 75%' : '✗ > 75%' },
+    { label: 'DSCR',      val: fmtX(DSCR),   pass: DSCR >= 1.25, note: DSCR >= 1.25 ? '✓ ≥ 1.25x' : '✗ < 1.25x' },
+  ]
+
+  return (
+    <div>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: C.navy, marginBottom: '1.25rem' }}>📊 Interactive Pro Forma Calculator</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+
+        {/* Inputs */}
+        <div>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Inputs</p>
+          {fields.map(({ label, key, prefix, suffix }) => (
+            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.55rem' }}>
+              <label style={{ fontSize: '0.78rem', color: '#444', width: '185px', flexShrink: 0 }}>{label}</label>
+              <div style={{ display: 'flex', alignItems: 'center', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', flex: 1 }}>
+                {prefix && <span style={{ padding: '0.3rem 0.5rem', background: '#e9ecef', fontSize: '0.8rem', color: '#666' }}>{prefix}</span>}
+                <input
+                  type="number"
+                  value={inp[key]}
+                  onChange={e => set(key, e.target.value)}
+                  style={{ border: 'none', background: 'transparent', padding: '0.3rem 0.5rem', width: '100%', fontSize: '0.85rem', outline: 'none', color: C.text }}
+                />
+                {suffix && <span style={{ padding: '0.3rem 0.5rem', background: '#e9ecef', fontSize: '0.8rem', color: '#666' }}>{suffix}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Outputs */}
+        <div>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Pro Forma Waterfall</p>
+
+          <div style={{ marginBottom: '1.25rem' }}>
+            {waterfall.map((row, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: `0.28rem ${row.indent ? '1.2rem' : '0.6rem'}`, background: row.bold ? '#F0F4F8' : 'transparent', borderRadius: '4px' }}>
+                <span style={{ fontSize: '0.79rem', color: '#555' }}>{row.label}</span>
+                <span style={{ fontSize: '0.84rem', fontWeight: row.bold ? 700 : 400, color: row.color }}>{row.val}</span>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.6rem' }}>Key Metrics</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            {metrics.map((m, i) => (
+              <div key={i} style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '0.6rem 0.8rem' }}>
+                <p style={{ fontSize: '0.69rem', color: C.muted, margin: 0 }}>{m.label}</p>
+                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: m.pass === null ? C.navy : (m.pass ? C.green : C.red), margin: '0.1rem 0' }}>{m.val}</p>
+                <p style={{ fontSize: '0.68rem', color: m.pass === null ? '#bbb' : (m.pass ? C.green : C.red), margin: 0 }}>{m.note}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Spread badge */}
+          <div style={{ padding: '0.75rem 1rem', background: spreadBps >= 100 ? C.greenL : C.redL, border: `1px solid ${spreadBps >= 100 ? C.green : C.red}`, borderRadius: '8px' }}>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.84rem', color: spreadBps >= 100 ? '#1E8449' : '#C0392B' }}>
+              {spreadBps >= 100 ? '✓' : '✗'} Development Spread: {spreadBps} bps
+            </p>
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: '#555' }}>
+              YOC {fmtPct(YOC)} − Cap Rate {fmtPct(capR)} = {spreadBps} bps
+              {spreadBps >= 100 ? ' — meets 100 bps minimum ✓' : ' — below 100 bps minimum, reconsider'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── CAP RATE EXPLORER ───────────────────────────────────────────────────────
+function CapRateExplorer() {
+  const [type, setType] = useState('industrial')
+  const [noi, setNoi]   = useState(1000000)
+  const [cost, setCost] = useState(20000000)
+
+  const bench = CAP_DATA[type]
+  const mid   = (bench.min + bench.max) / 2
+  const yoc   = cost > 0 ? (noi / cost) * 100 : 0
+  const spreadBps = Math.round((yoc - mid) * 100)
+  const impliedMid  = noi / (mid / 100)
+  const impliedHigh = noi / (bench.min / 100)
+  const impliedLow  = noi / (bench.max / 100)
+
+  return (
+    <div>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: C.navy, marginBottom: '1.25rem' }}>🔍 SoCal Cap Rate Explorer</h3>
+
+      {/* Asset type pills */}
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        {Object.entries(CAP_DATA).map(([key, d]) => (
+          <button key={key} onClick={() => setType(key)} style={pill(type === key, d.color)}>{d.label}</button>
+        ))}
+      </div>
+
+      {/* Benchmark card */}
+      <div style={{ border: `2px solid ${bench.color}`, borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1.25rem', background: `${bench.color}08` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+          <span style={{ fontWeight: 700, color: bench.color, fontSize: '1rem' }}>SoCal {bench.label}</span>
+          <span style={{ fontWeight: 800, fontSize: '1.4rem', color: bench.color }}>{bench.min}% – {bench.max}%</span>
+        </div>
+        {/* Visual bar */}
+        <div style={{ position: 'relative', height: '10px', background: '#e9ecef', borderRadius: '5px', marginBottom: '0.6rem' }}>
+          <div style={{
+            position: 'absolute',
+            left: `${((bench.min - 3) / 7) * 100}%`,
+            width: `${((bench.max - bench.min) / 7) * 100}%`,
+            height: '100%', background: bench.color, borderRadius: '5px', opacity: 0.85,
+          }} />
+          {/* Mid marker */}
+          <div style={{ position: 'absolute', left: `${((mid - 3) / 7) * 100}%`, top: '-3px', width: '3px', height: '16px', background: bench.color, borderRadius: '2px' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+          <span style={{ fontSize: '0.65rem', color: C.muted }}>3.00% (tight)</span>
+          <span style={{ fontSize: '0.65rem', color: bench.color, fontWeight: 600 }}>Mid: {mid.toFixed(2)}%</span>
+          <span style={{ fontSize: '0.65rem', color: C.muted }}>10.00% (distressed)</span>
+        </div>
+        <p style={{ fontSize: '0.8rem', color: '#555', margin: 0, lineHeight: 1.5 }}>{bench.driver}</p>
+      </div>
+
+      {/* Calculator */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Your Deal</p>
+          {[{ label: 'Stabilized NOI', val: noi, set: setNoi }, { label: 'Total Project Cost', val: cost, set: setCost }].map(({ label, val, set }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+              <label style={{ fontSize: '0.8rem', color: '#444', width: '150px', flexShrink: 0 }}>{label}</label>
+              <div style={{ display: 'flex', alignItems: 'center', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', flex: 1 }}>
+                <span style={{ padding: '0.3rem 0.5rem', background: '#e9ecef', fontSize: '0.8rem', color: '#666' }}>$</span>
+                <input type="number" value={val} onChange={e => set(parseFloat(e.target.value) || 0)}
+                  style={{ border: 'none', background: 'transparent', padding: '0.3rem 0.5rem', width: '100%', fontSize: '0.85rem', outline: 'none', color: C.text }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Analysis</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '0.6rem 0.85rem' }}>
+              <p style={{ fontSize: '0.69rem', color: C.muted, margin: 0 }}>Your YOC</p>
+              <p style={{ fontSize: '1.3rem', fontWeight: 800, color: C.navy, margin: '0.1rem 0' }}>{yoc.toFixed(2)}%</p>
+            </div>
+            <div style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '0.6rem 0.85rem' }}>
+              <p style={{ fontSize: '0.69rem', color: C.muted, margin: 0 }}>Implied Market Value (at mid cap {mid.toFixed(2)}%)</p>
+              <p style={{ fontSize: '1.05rem', fontWeight: 700, color: C.blue, margin: '0.1rem 0' }}>{fmtUSD(impliedMid)}</p>
+              <p style={{ fontSize: '0.7rem', color: '#bbb', margin: 0 }}>Range: {fmtUSD(impliedLow)} – {fmtUSD(impliedHigh)}</p>
+            </div>
+            <div style={{ background: spreadBps >= 100 ? C.greenL : C.redL, border: `1px solid ${spreadBps >= 100 ? C.green : C.red}`, borderRadius: '8px', padding: '0.6rem 0.85rem' }}>
+              <p style={{ fontSize: '0.69rem', color: C.muted, margin: 0 }}>Development Spread (vs. mid cap)</p>
+              <p style={{ fontSize: '1.2rem', fontWeight: 800, color: spreadBps >= 100 ? '#1E8449' : '#C0392B', margin: '0.1rem 0' }}>{spreadBps} bps</p>
+              <p style={{ fontSize: '0.7rem', color: spreadBps >= 100 ? '#1E8449' : '#C0392B', margin: 0 }}>
+                {spreadBps >= 100 ? '✓ Meets 100 bps minimum — proceed' : '✗ Below 100 bps minimum — reconsider'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+function Quiz() {
+  const [idx, setIdx]     = useState(0)
+  const [sel, setSel]     = useState(null)
+  const [revealed, setRev] = useState(false)
+  const [answers, setAns] = useState([])
+  const [done, setDone]   = useState(false)
+
+  const q     = QUIZ[idx]
+  const total = QUIZ.length
+  const score = answers.filter((a, i) => a === QUIZ[i].a).length
+  const pct   = Math.round((score / total) * 100)
+
+  const choose = i => { if (!revealed) setSel(i) }
+
+  const check = () => setRev(true)
+
+  const next = () => {
+    const a = [...answers, sel]
+    setAns(a)
+    if (idx + 1 >= total) { setDone(true); return }
+    setIdx(idx + 1); setSel(null); setRev(false)
+  }
+
+  const reset = () => { setIdx(0); setSel(null); setRev(false); setAns([]); setDone(false) }
+
+  if (done) {
+    const ok    = pct >= 85
+    const warn  = pct >= 65 && pct < 85
+    const bg    = ok ? C.greenL : warn ? C.amberL : C.redL
+    const border= ok ? C.green  : warn ? C.amber  : C.red
+    const text  = ok ? '#1E8449': warn ? '#7D6608': '#C0392B'
+    const msg   = ok ? '✅ Ready to advance to Week 2!' : warn ? '📖 Review recommended before advancing' : '🔄 Retry recommended — review key concepts first'
+
+    return (
+      <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+        <div style={{ fontSize: '3.5rem', marginBottom: '0.5rem' }}>{ok ? '🎉' : warn ? '📚' : '💪'}</div>
+        <h2 style={{ color: C.navy, marginBottom: '0.5rem' }}>Quiz Complete!</h2>
+        <p style={{ fontSize: '3.5rem', fontWeight: 900, color: C.navy, margin: '0.5rem 0', lineHeight: 1 }}>{pct}%</p>
+        <p style={{ color: C.muted, marginBottom: '1.25rem' }}>{score} / {total} correct</p>
+        <div style={{ display: 'inline-block', background: bg, border: `1px solid ${border}`, borderRadius: '10px', padding: '0.9rem 2rem', marginBottom: '1.75rem' }}>
+          <p style={{ color: text, fontWeight: 700, margin: 0, fontSize: '1rem' }}>{msg}</p>
+        </div>
+        <div style={{ marginBottom: '1.75rem' }}>
+          <p style={{ fontWeight: 600, color: '#444', marginBottom: '0.6rem' }}>Score Thresholds</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {[['85%+', 'Advance', C.green], ['65–84%', 'Review', C.amber], ['< 65%', 'Retry', C.red]].map(([range, label, clr]) => (
+              <div key={range} style={{ background: `${clr}15`, border: `1px solid ${clr}`, borderRadius: '8px', padding: '0.5rem 1rem', textAlign: 'center' }}>
+                <p style={{ fontSize: '0.9rem', fontWeight: 700, color: clr, margin: 0 }}>{range}</p>
+                <p style={{ fontSize: '0.75rem', color: '#666', margin: 0 }}>{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button onClick={reset} style={{ padding: '0.65rem 2.5rem', background: C.navy, color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+          Retake Quiz
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+        <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: C.navy, margin: 0 }}>📝 Domain 1, Week 1 Quiz</h3>
+        <span style={{ fontSize: '0.82rem', color: C.muted, fontWeight: 600 }}>{idx + 1} / {total}</span>
+      </div>
+
+      {/* Progress */}
+      <div style={{ height: '6px', background: '#e9ecef', borderRadius: '3px', marginBottom: '1.25rem' }}>
+        <div style={{ height: '100%', background: C.navy, borderRadius: '3px', width: `${(idx / total) * 100}%`, transition: 'width 0.3s ease' }} />
+      </div>
+
+      <p style={{ fontWeight: 600, fontSize: '0.96rem', color: '#1a1a1a', lineHeight: 1.6, marginBottom: '1rem' }}>{q.q}</p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+        {q.opts.map((opt, i) => {
+          let bg = 'white', border = `1px solid ${C.border}`, color = C.text
+          if (revealed) {
+            if (i === q.a)   { bg = C.greenL; border = `2px solid ${C.green}`; color = '#1E8449' }
+            else if (i === sel) { bg = C.redL;   border = `2px solid ${C.red}`;   color = '#C0392B' }
+          } else if (sel === i) {
+            bg = C.blueL; border = `2px solid ${C.blue}`; color = '#1A5276'
+          }
+          return (
+            <button key={i} onClick={() => choose(i)} style={{ textAlign: 'left', padding: '0.7rem 1rem', background: bg, border, borderRadius: '8px', color, fontSize: '0.85rem', cursor: revealed ? 'default' : 'pointer', transition: 'all 0.15s', lineHeight: 1.45 }}>
+              <span style={{ fontWeight: 700, marginRight: '0.5rem' }}>{String.fromCharCode(65 + i)}.</span>{opt}
+            </button>
+          )
+        })}
+      </div>
+
+      {sel !== null && !revealed && (
+        <button onClick={check} style={{ padding: '0.5rem 1.4rem', background: C.blue, color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.86rem', marginBottom: '0.75rem' }}>
+          Check Answer
+        </button>
+      )}
+
+      {revealed && (
+        <div style={{ padding: '0.8rem 1rem', background: sel === q.a ? C.greenL : C.purpleL, border: `1px solid ${sel === q.a ? C.green : C.purple}`, borderRadius: '8px', marginBottom: '1rem' }}>
+          <p style={{ fontWeight: 700, color: sel === q.a ? '#1E8449' : '#6C3483', margin: '0 0 0.3rem' }}>
+            {sel === q.a ? '✓ Correct!' : '✗ Not quite'}
+          </p>
+          <p style={{ fontSize: '0.82rem', color: '#444', margin: 0, lineHeight: 1.55 }}>{q.exp}</p>
+        </div>
+      )}
+
+      {revealed && (
+        <button onClick={next} style={{ padding: '0.55rem 1.75rem', background: C.navy, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>
+          {idx + 1 >= total ? 'See Results →' : 'Next Question →'}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ─── LESSON VIEW ──────────────────────────────────────────────────────────────
+function LessonView({ week, domainColor }) {
+  const [openTerm, setOpenTerm] = useState(null)
+
+  if (!week.vocabulary) {
+    return (
+      <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔒</div>
+        <p style={{ fontWeight: 700, color: '#444', fontSize: '1rem', marginBottom: '0.4rem' }}>Week {week.week}: {week.title}</p>
+        <p style={{ fontSize: '0.85rem', color: C.muted, maxWidth: '340px', margin: '0 auto' }}>
+          This week's content will unlock as you progress through the program. Complete Week {week.week - 1} first.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {/* Sessions */}
+      <section style={{ marginBottom: '1.75rem' }}>
+        <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.65rem' }}>Study Sessions — Week 1</p>
+        {week.sessions.map((s, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.85rem', padding: '0.55rem 0.85rem', background: C.gray, borderRadius: '7px', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '0.74rem', color: domainColor, fontWeight: 700, width: '82px', flexShrink: 0, paddingTop: '0.1rem' }}>{s.day}</span>
+            <span style={{ fontSize: '0.82rem', color: '#444' }}>{s.title}</span>
+          </div>
+        ))}
+      </section>
+
+      {/* Vocabulary */}
+      <section style={{ marginBottom: '1.75rem' }}>
+        <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.65rem' }}>8 Key Terms — Click to Expand</p>
+        {week.vocabulary.map((v, i) => (
+          <div key={i} style={{ border: `1px solid ${C.border}`, borderRadius: '9px', marginBottom: '0.45rem', overflow: 'hidden' }}>
+            <button
+              onClick={() => setOpenTerm(openTerm === i ? null : i)}
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 1rem', background: openTerm === i ? C.blueL : 'white', border: 'none', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.92rem', color: domainColor, background: `${domainColor}18`, padding: '0.15rem 0.55rem', borderRadius: '5px', letterSpacing: '0.02em' }}>{v.term}</span>
+                <span style={{ fontSize: '0.82rem', color: '#555' }}>{v.full}</span>
+              </div>
+              <span style={{ color: C.muted, fontSize: '0.75rem', flexShrink: 0 }}>{openTerm === i ? '▲' : '▼'}</span>
+            </button>
+            {openTerm === i && (
+              <div style={{ padding: '0.8rem 1rem 0.9rem', background: '#FAFCFF', borderTop: `1px solid ${C.blueL}` }}>
+                <p style={{ fontSize: '0.84rem', color: '#333', lineHeight: 1.65, margin: '0 0 0.55rem' }}>{v.definition}</p>
+                <div style={{ background: C.blueL, borderLeft: `3px solid ${C.blue}`, padding: '0.4rem 0.75rem', borderRadius: '0 5px 5px 0' }}>
+                  <p style={{ fontSize: '0.79rem', color: '#1A5276', margin: 0, fontFamily: 'monospace' }}>📌 {v.example}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </section>
+
+      {/* Concepts */}
+      <section>
+        <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.65rem' }}>Core Concepts</p>
+        {week.concepts.map((c, i) => (
+          <div key={i} style={{ borderLeft: `4px solid ${domainColor}`, background: C.gray, borderRadius: '0 9px 9px 0', padding: '0.8rem 1rem', marginBottom: '0.6rem' }}>
+            <p style={{ fontWeight: 700, color: domainColor, margin: '0 0 0.4rem', fontSize: '0.9rem' }}>{c.heading}</p>
+            <p style={{ fontSize: '0.83rem', color: '#444', margin: 0, lineHeight: 1.7 }}>{c.body}</p>
+          </div>
+        ))}
+      </section>
+    </div>
+  )
+}
+
+// ─── COMING SOON (domain overview) ───────────────────────────────────────────
+function DomainComingSoon({ domain }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+      <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>{domain.icon}</div>
+      <h2 style={{ color: domain.color, fontWeight: 800, marginBottom: '0.5rem' }}>Domain {domain.id}: {domain.title}</h2>
+      <p style={{ color: C.muted, fontSize: '0.9rem', maxWidth: '380px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>{domain.description}</p>
+      <div style={{ display: 'inline-block', background: `${domain.color}12`, border: `1px dashed ${domain.color}`, borderRadius: '10px', padding: '0.75rem 2rem' }}>
+        <p style={{ color: domain.accent, fontWeight: 600, margin: 0, fontSize: '0.85rem' }}>
+          🔒 Complete Domain 1 to unlock this module
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+export default function App() {
+  const [domIdx, setDomIdx]  = useState(0)
+  const [wkIdx, setWkIdx]    = useState(0)
+  const [tab, setTab]        = useState('lesson')
+  const [sideOpen, setSide]  = useState(true)
+
+  const domain = DOMAINS[domIdx]
+  const week   = domain.weeks[wkIdx]
+  const hasContent = domain.id === 1 && week.week === 1
+
+  const tabs = hasContent
+    ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'proforma', label: '📊 Pro Forma' }, { id: 'caprate', label: '🔍 Cap Rates' }, { id: 'quiz', label: '📝 Quiz' }]
+    : [{ id: 'lesson', label: '📖 Lesson' }]
+
+  const switchDomain = i => { setDomIdx(i); setWkIdx(0); setTab('lesson') }
+  const switchWeek   = i => { setWkIdx(i);              setTab('lesson') }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F0F3F7' }}>
+
+      {/* ── Header ── */}
+      <header style={{ background: C.navy, color: 'white', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <button onClick={() => setSide(s => !s)} style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: 'white', width: '32px', height: '32px', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            ☰
+          </button>
+          <div>
+            <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>HTA Construction & Development · Infinity</p>
+            <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, letterSpacing: '-0.01em' }}>Learning Series</h1>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.65 }}>David Parada</p>
+          <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain 1, Week 1 · Active</p>
+        </div>
+      </header>
+
+      {/* ── Domain nav ── */}
+      <nav style={{ background: 'white', borderBottom: `1px solid ${C.border}`, display: 'flex', overflowX: 'auto', flexShrink: 0 }}>
+        {DOMAINS.map((d, i) => (
+          <button key={d.id} onClick={() => switchDomain(i)} style={{
+            padding: '0.7rem 1.1rem',
+            border: 'none',
+            borderBottom: domIdx === i ? `3px solid ${d.color}` : '3px solid transparent',
+            background: 'transparent',
+            color: domIdx === i ? d.color : C.muted,
+            fontWeight: domIdx === i ? 700 : 400,
+            cursor: 'pointer',
+            fontSize: '0.82rem',
+            whiteSpace: 'nowrap',
+            transition: 'all 0.15s',
+          }}>
+            {d.icon} Domain {d.id}: {d.title}
+          </button>
+        ))}
+      </nav>
+
+      {/* ── Body ── */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+
+        {/* Sidebar */}
+        {sideOpen && (
+          <aside style={{ width: '220px', flexShrink: 0, background: 'white', borderRight: `1px solid ${C.border}`, overflowY: 'auto', padding: '0.85rem 0' }}>
+            <p style={{ fontSize: '0.67rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 1rem', marginBottom: '0.4rem' }}>12-Week Plan</p>
+            {domain.weeks.map((w, i) => {
+              const active = wkIdx === i
+              return (
+                <button key={i} onClick={() => switchWeek(i)} style={{
+                  width: '100%', textAlign: 'left', padding: '0.5rem 0.85rem',
+                  border: 'none',
+                  borderLeft: active ? `3px solid ${domain.color}` : '3px solid transparent',
+                  background: active ? `${domain.color}10` : 'transparent',
+                  cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                }}>
+                  <span style={{
+                    width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: w.status === 'active' ? domain.color : '#e9ecef',
+                    color: w.status === 'active' ? 'white' : '#bbb',
+                    fontSize: '0.62rem', fontWeight: 700, marginTop: '0.05rem',
+                  }}>{w.week}</span>
+                  <span style={{ fontSize: '0.77rem', color: active ? domain.color : (w.status === 'upcoming' ? '#bbb' : '#444'), fontWeight: active ? 700 : 400, lineHeight: 1.35 }}>
+                    {w.title}
+                  </span>
+                </button>
+              )
+            })}
+          </aside>
+        )}
+
+        {/* Main */}
+        <main style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
+
+          {/* Week header */}
+          <div style={{ marginBottom: '1rem' }}>
+            <p style={{ margin: 0, fontSize: '0.74rem', color: C.muted }}>Domain {domain.id} · Week {week.week}</p>
+            <h2 style={{ margin: '0.15rem 0 0', fontSize: '1.2rem', fontWeight: 800, color: domain.color }}>{week.title}</h2>
+          </div>
+
+          {/* Tab bar (only for content weeks) */}
+          {(hasContent || domain.id !== 1) && domain.id === 1 && (
+            <div style={{ display: 'flex', gap: '0.25rem', background: '#e9ecef', borderRadius: '9px', padding: '0.25rem', marginBottom: '1.25rem' }}>
+              {tabs.map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)} style={{
+                  flex: 1, padding: '0.45rem 0.5rem', border: 'none',
+                  borderRadius: '7px',
+                  background: tab === t.id ? 'white' : 'transparent',
+                  color: tab === t.id ? domain.color : C.muted,
+                  fontWeight: tab === t.id ? 700 : 400,
+                  fontSize: '0.82rem', cursor: 'pointer',
+                  boxShadow: tab === t.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.15s',
+                }}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Content */}
+          <div style={card()}>
+            {domain.id !== 1 ? (
+              <DomainComingSoon domain={domain} />
+            ) : tab === 'lesson' ? (
+              <LessonView week={week} domainColor={domain.color} />
+            ) : tab === 'proforma' && hasContent ? (
+              <ProFormaCalc />
+            ) : tab === 'caprate' && hasContent ? (
+              <CapRateExplorer />
+            ) : tab === 'quiz' && hasContent ? (
+              <Quiz />
+            ) : (
+              <LessonView week={week} domainColor={domain.color} />
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      React.createElement(React.StrictMode, null, React.createElement(App))
+    );
+  </script>
+</body>
+</html>
