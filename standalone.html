@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HTA Learning Series</title>
+  <title>Parada Capital & HTA Construction — Learning Series</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -22,7 +22,9 @@
 <body>
   <div id="root"></div>
   <script type="text/babel" data-presets="react">
-    const { useState } = React;
+    const { useState, useEffect } = React;
+
+const STORAGE_COMPLETED_DOMAINS = 'hta_learning_completed_domains'
 
 // ─── PALETTE ─────────────────────────────────────────────────────────────────
 const C = {
@@ -114,7 +116,7 @@ const DOMAINS = [
           },
           {
             heading: 'The Four Deal Checks',
-            body: 'Before any deal moves forward at HTA/Infinity, it must pass four checks: (1) NOI — does the property generate sufficient operating income? (2) Spread — is YOC at least 100–150 bps above market cap rate? (3) Stack — can the capital structure support the deal at acceptable LTV and DSCR? (4) Entitlement — what can actually be built on this site, and what does the approval timeline look like?',
+            body: 'Before any deal moves forward at Parada Capital, it must pass four checks: (1) NOI — does the property generate sufficient operating income? (2) Spread — is YOC at least 100–150 bps above market cap rate? (3) Stack — can the capital structure support the deal at acceptable LTV and DSCR? (4) Entitlement — what can actually be built on this site, and what does the approval timeline look like?',
           },
           {
             heading: 'SoCal Cap Rate Benchmarks (2024–2025)',
@@ -305,7 +307,7 @@ const QUIZ = [
     exp: 'Senior debt is first in line for repayment and has the lowest risk. Because it\'s most protected, lenders accept a lower return (interest rate). Common equity is last in — highest risk, highest potential upside.',
   },
   {
-    q: 'The "Four Deal Checks" at HTA/Infinity are:',
+    q: 'The "Four Deal Checks" at Parada Capital are:',
     opts: ['Price, Rent, Vacancy, Expenses', 'NOI, Spread, Stack, Entitlement', 'LTV, DSCR, Cap Rate, YOC', 'GPR, EGI, NOI, CFBT'],
     a: 1,
     exp: 'The four deal checks: NOI (operating income check), Spread (YOC vs. market cap rate ≥ 100–150 bps), Stack (capital structure — LTV and DSCR), Entitlement (what can be built and on what timeline).',
@@ -694,10 +696,30 @@ function Quiz() {
 }
 
 // ─── LESSON VIEW ──────────────────────────────────────────────────────────────
-function LessonView({ week, domainColor }) {
+function LessonView({ week, domainColor, domainId }) {
   const [openTerm, setOpenTerm] = useState(null)
 
   if (!week.vocabulary) {
+    if (domainId !== 1) {
+      return (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+          <p style={{ fontWeight: 700, color: '#444', fontSize: '1rem', marginBottom: '0.5rem' }}>Week {week.week}: {week.title}</p>
+          <p style={{ fontSize: '0.85rem', color: C.muted, maxWidth: '400px', margin: '0 auto', lineHeight: 1.6 }}>
+            Lesson materials for this week will be published here. Use the week list in the sidebar to track the full 12-week plan for Domain {domainId}.
+          </p>
+        </div>
+      )
+    }
+    if (domainId === 1 && week.week === 12) {
+      return (
+        <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+          <p style={{ fontWeight: 700, color: domainColor, fontSize: '1.05rem', marginBottom: '0.5rem' }}>Week 12: {week.title}</p>
+          <p style={{ fontSize: '0.85rem', color: C.muted, maxWidth: '420px', margin: '0 auto', lineHeight: 1.65 }}>
+            Final review and assessment content will be added here. When you are ready to move on, use the section below to mark Domain 1 complete and unlock Domain 2.
+          </p>
+        </div>
+      )
+    }
     return (
       <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔒</div>
@@ -763,8 +785,9 @@ function LessonView({ week, domainColor }) {
   )
 }
 
-// ─── COMING SOON (domain overview) ───────────────────────────────────────────
-function DomainComingSoon({ domain }) {
+// ─── LOCKED DOMAIN (previous domain not marked complete) ─────────────────────
+function DomainLocked({ domain }) {
+  const prev = domain.id - 1
   return (
     <div style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
       <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>{domain.icon}</div>
@@ -772,30 +795,94 @@ function DomainComingSoon({ domain }) {
       <p style={{ color: C.muted, fontSize: '0.9rem', maxWidth: '380px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>{domain.description}</p>
       <div style={{ display: 'inline-block', background: `${domain.color}12`, border: `1px dashed ${domain.color}`, borderRadius: '10px', padding: '0.75rem 2rem' }}>
         <p style={{ color: domain.accent, fontWeight: 600, margin: 0, fontSize: '0.85rem' }}>
-          🔒 Complete Domain 1 to unlock this module
+          🔒 Complete Domain {prev} (Week 12) to unlock this module
         </p>
       </div>
     </div>
   )
 }
 
+function DomainWeek12Footer({ domain, completed, onComplete }) {
+  const hasNext = domain.id < DOMAINS.length
+  return (
+    <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: `1px solid ${C.border}` }}>
+      {completed ? (
+        <p style={{ margin: 0, fontSize: '0.88rem', color: '#1E8449', fontWeight: 700 }}>
+          {hasNext
+            ? `✓ Domain ${domain.id} complete — Domain ${domain.id + 1} is now unlocked.`
+            : `✓ Domain ${domain.id} complete — you've finished the full series.`}
+        </p>
+      ) : (
+        <>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.83rem', color: C.muted, lineHeight: 1.55 }}>
+            {hasNext
+              ? `When you're done with Domain ${domain.id}, mark it complete to unlock Domain ${domain.id + 1}.`
+              : 'Mark this final domain complete when you have finished the program.'}
+          </p>
+          <button
+            type="button"
+            onClick={onComplete}
+            style={{
+              padding: '0.6rem 1.25rem',
+              background: domain.color,
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 700,
+              fontSize: '0.86rem',
+              cursor: 'pointer',
+            }}
+          >
+            {hasNext ? `Mark Domain ${domain.id} complete & unlock Domain ${domain.id + 1}` : `Mark Domain ${domain.id} complete`}
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+function domainUnlocked(domainId, completedDomainIds) {
+  if (domainId === 1) return true
+  return completedDomainIds.includes(domainId - 1)
+}
+
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
-export default function App() {
+function App() {
   const [domIdx, setDomIdx]  = useState(0)
   const [wkIdx, setWkIdx]    = useState(0)
   const [tab, setTab]        = useState('lesson')
   const [sideOpen, setSide]  = useState(true)
+  const [completedDomainIds, setCompletedDomainIds] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_COMPLETED_DOMAINS)
+      if (!raw) return []
+      const arr = JSON.parse(raw)
+      return Array.isArray(arr) ? arr.filter(n => Number.isInteger(n) && n >= 1 && n <= DOMAINS[DOMAINS.length - 1].id) : []
+    } catch {
+      return []
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_COMPLETED_DOMAINS, JSON.stringify(completedDomainIds))
+    } catch (_) {}
+  }, [completedDomainIds])
+
+  const markDomainComplete = id => {
+    setCompletedDomainIds(prev => (prev.includes(id) ? prev : [...prev, id]))
+  }
 
   const domain = DOMAINS[domIdx]
   const week   = domain.weeks[wkIdx]
   const hasContent = domain.id === 1 && week.week === 1
+  const unlocked = domainUnlocked(domain.id, completedDomainIds)
 
   const tabs = hasContent
     ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'proforma', label: '📊 Pro Forma' }, { id: 'caprate', label: '🔍 Cap Rates' }, { id: 'quiz', label: '📝 Quiz' }]
     : [{ id: 'lesson', label: '📖 Lesson' }]
 
   const switchDomain = i => { setDomIdx(i); setWkIdx(0); setTab('lesson') }
-  const switchWeek   = i => { setWkIdx(i);              setTab('lesson') }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F0F3F7' }}>
@@ -807,13 +894,13 @@ export default function App() {
             ☰
           </button>
           <div>
-            <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>HTA Construction & Development · Infinity</p>
+            <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65, lineHeight: 1.4 }}>Parada Capital<br />HTA Construction</p>
             <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, letterSpacing: '-0.01em' }}>Learning Series</h1>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.65 }}>David Parada</p>
-          <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain 1, Week 1 · Active</p>
+          <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain {domain.id}, Week {week.week} · {week.status === 'active' ? 'Active' : week.status === 'upcoming' ? 'Upcoming' : week.status}</p>
         </div>
       </header>
 
@@ -842,31 +929,46 @@ export default function App() {
 
         {/* Sidebar */}
         {sideOpen && (
-          <aside style={{ width: '220px', flexShrink: 0, background: 'white', borderRight: `1px solid ${C.border}`, overflowY: 'auto', padding: '0.85rem 0' }}>
-            <p style={{ fontSize: '0.67rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 1rem', marginBottom: '0.4rem' }}>12-Week Plan</p>
-            {domain.weeks.map((w, i) => {
-              const active = wkIdx === i
+          <aside style={{ width: '248px', flexShrink: 0, background: 'white', borderRight: `1px solid ${C.border}`, overflowY: 'auto', padding: '0.85rem 0' }}>
+            <p style={{ fontSize: '0.67rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 1rem', marginBottom: '0.5rem' }}>Curriculum</p>
+            {DOMAINS.map((d, di) => {
+              const dLocked = !domainUnlocked(d.id, completedDomainIds)
               return (
-                <button key={i} onClick={() => switchWeek(i)} style={{
-                  width: '100%', textAlign: 'left', padding: '0.5rem 0.85rem',
-                  border: 'none',
-                  borderLeft: active ? `3px solid ${domain.color}` : '3px solid transparent',
-                  background: active ? `${domain.color}10` : 'transparent',
-                  cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+              <div key={d.id} style={{ marginBottom: '0.25rem', opacity: dLocked ? 0.55 : 1 }}>
+                <button type="button" onClick={() => switchDomain(di)} style={{
+                  width: '100%', textAlign: 'left', padding: '0.45rem 1rem 0.3rem',
+                  border: 'none', borderLeft: domIdx === di ? `3px solid ${d.color}` : '3px solid transparent',
+                  background: 'transparent', cursor: 'pointer',
                 }}>
-                  <span style={{
-                    width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: w.status === 'active' ? domain.color : '#e9ecef',
-                    color: w.status === 'active' ? 'white' : '#bbb',
-                    fontSize: '0.62rem', fontWeight: 700, marginTop: '0.05rem',
-                  }}>{w.week}</span>
-                  <span style={{ fontSize: '0.77rem', color: active ? domain.color : (w.status === 'upcoming' ? '#bbb' : '#444'), fontWeight: active ? 700 : 400, lineHeight: 1.35 }}>
-                    {w.title}
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: domIdx === di ? d.color : C.muted, lineHeight: 1.35, display: 'block' }}>
+                    {dLocked ? '🔒 ' : ''}{d.icon} Domain {d.id}: {d.title}
                   </span>
                 </button>
-              )
-            })}
+                {d.weeks.map((w, wi) => {
+                  const active = domIdx === di && wkIdx === wi
+                  return (
+                    <button key={wi} type="button" onClick={() => { setDomIdx(di); setWkIdx(wi); setTab('lesson') }} style={{
+                      width: '100%', textAlign: 'left', padding: '0.45rem 0.85rem 0.45rem 1.35rem',
+                      border: 'none',
+                      borderLeft: active ? `3px solid ${d.color}` : '3px solid transparent',
+                      background: active ? `${d.color}10` : 'transparent',
+                      cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                    }}>
+                      <span style={{
+                        width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: w.status === 'active' ? d.color : '#e9ecef',
+                        color: w.status === 'active' ? 'white' : '#bbb',
+                        fontSize: '0.62rem', fontWeight: 700, marginTop: '0.05rem',
+                      }}>{w.week}</span>
+                      <span style={{ fontSize: '0.77rem', color: active ? d.color : (w.status === 'upcoming' ? '#bbb' : '#444'), fontWeight: active ? 700 : 400, lineHeight: 1.35 }}>
+                        {w.title}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            )})}
           </aside>
         )}
 
@@ -901,18 +1003,33 @@ export default function App() {
 
           {/* Content */}
           <div style={card()}>
-            {domain.id !== 1 ? (
-              <DomainComingSoon domain={domain} />
-            ) : tab === 'lesson' ? (
-              <LessonView week={week} domainColor={domain.color} />
-            ) : tab === 'proforma' && hasContent ? (
-              <ProFormaCalc />
-            ) : tab === 'caprate' && hasContent ? (
-              <CapRateExplorer />
-            ) : tab === 'quiz' && hasContent ? (
-              <Quiz />
+            {!unlocked ? (
+              <DomainLocked domain={domain} />
             ) : (
-              <LessonView week={week} domainColor={domain.color} />
+              <>
+                {domain.id === 1 ? (
+                  tab === 'lesson' ? (
+                    <LessonView week={week} domainColor={domain.color} domainId={1} />
+                  ) : tab === 'proforma' && hasContent ? (
+                    <ProFormaCalc />
+                  ) : tab === 'caprate' && hasContent ? (
+                    <CapRateExplorer />
+                  ) : tab === 'quiz' && hasContent ? (
+                    <Quiz />
+                  ) : (
+                    <LessonView week={week} domainColor={domain.color} domainId={1} />
+                  )
+                ) : (
+                  <LessonView week={week} domainColor={domain.color} domainId={domain.id} />
+                )}
+                {week.week === 12 && (
+                  <DomainWeek12Footer
+                    domain={domain}
+                    completed={completedDomainIds.includes(domain.id)}
+                    onComplete={() => markDomainComplete(domain.id)}
+                  />
+                )}
+              </>
             )}
           </div>
         </main>
