@@ -1,23 +1,27 @@
 import { useState, useEffect } from 'react'
-import { supabase } from './lib/supabase'
+import { supabase, authConfigured } from './lib/supabase'
 import Auth from './pages/Auth'
 import Course from './pages/Course'
 import Admin from './pages/Admin'
 
 export default function App() {
-  const [session, setSession]   = useState(null)
-  const [profile, setProfile]   = useState(null)
-  const [loading, setLoading]   = useState(true)
+  const [session, setSession] = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
+    // If Supabase is not configured, skip auth entirely
+    if (!authConfigured) {
+      setLoading(false)
+      return
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       if (session) loadProfile(session.user.id)
       else setLoading(false)
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       if (session) loadProfile(session.user.id)
@@ -48,11 +52,15 @@ export default function App() {
     )
   }
 
+  // No Supabase config → go straight to course as guest
+  if (!authConfigured) {
+    return <Course user={null} profile={null} />
+  }
+
   if (!session) {
     return <Auth />
   }
 
-  // Route to admin if path is /admin and user is admin
   const isAdminRoute = window.location.pathname === '/admin'
   if (isAdminRoute && profile?.role === 'admin') {
     return <Admin user={session.user} profile={profile} />
