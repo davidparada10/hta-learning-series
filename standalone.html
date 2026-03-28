@@ -374,60 +374,90 @@ const card = (extra = {}) => ({
 })
 
 // ─── PRO FORMA CALCULATOR ────────────────────────────────────────────────────
-function ProFormaCalc() {
-  const [inp, setInp] = useState({
-    units: 50, avgRent: 2500, vacPct: 5, ancillary: 15000,
-    opExPct: 35, loan: 7500000, rate: 6.5, term: 30,
-    cost: 12000000, value: 13500000,
-  })
+const PRO_FORMA_UNIT_TYPES = [
+  { label: 'Studio', countKey: 'uStudio', rentKey: 'rStudio' },
+  { label: '1 bedroom', countKey: 'u1', rentKey: 'r1' },
+  { label: '2 bedroom', countKey: 'u2', rentKey: 'r2' },
+  { label: '3 bedroom', countKey: 'u3', rentKey: 'r3' },
+]
+
+const DEFAULT_PROFORMA_INP = {
+  uStudio: 8, rStudio: 1900,
+  u1: 15, r1: 2300,
+  u2: 22, r2: 2600,
+  u3: 5, r3: 3200,
+  vacPct: 5, ancillary: 15000,
+  opExPct: 35, loan: 7500000, rate: 6.5, term: 30,
+  landCost: 2500000,
+  cost: 9500000,
+  value: 13500000,
+  buildingGsf: 32397,
+  stories: 4,
+  parking: 30,
+}
+
+function ProFormaCalc(props) {
+  const [localInp, setLocalInp] = useState(DEFAULT_PROFORMA_INP)
+  const controlled = props.inp !== undefined && props.setInp !== undefined
+  const inp = controlled ? props.inp : localInp
+  const setInp = controlled ? props.setInp : setLocalInp
 
   const set = (k, v) => setInp(p => ({ ...p, [k]: parseFloat(v) || 0 }))
 
-  const GPR  = inp.units * inp.avgRent * 12
+  const monthlyRentRoll =
+    inp.uStudio * inp.rStudio +
+    inp.u1 * inp.r1 +
+    inp.u2 * inp.r2 +
+    inp.u3 * inp.r3
+
+  const totalUnits = inp.uStudio + inp.u1 + inp.u2 + inp.u3
+  const blendedAvgRent = totalUnits > 0 ? monthlyRentRoll / totalUnits : 0
+
+  const GPR = monthlyRentRoll * 12
   const vacL = GPR * (inp.vacPct / 100)
-  const EGI  = GPR - vacL + inp.ancillary
+  const EGI = GPR - vacL + inp.ancillary
   const opEx = EGI * (inp.opExPct / 100)
-  const NOI  = EGI - opEx
-  const mr   = inp.rate / 100 / 12
-  const np   = inp.term * 12
-  const mp   = inp.loan * (mr * Math.pow(1 + mr, np)) / (Math.pow(1 + mr, np) - 1)
-  const DS   = mp * 12
+  const NOI = EGI - opEx
+  const mr = inp.rate / 100 / 12
+  const np = inp.term * 12
+  const mp = inp.loan * (mr * Math.pow(1 + mr, np)) / (Math.pow(1 + mr, np) - 1)
+  const DS = mp * 12
   const CFBT = NOI - DS
   const capR = inp.value > 0 ? (NOI / inp.value) * 100 : 0
-  const YOC  = inp.cost  > 0 ? (NOI / inp.cost)  * 100 : 0
-  const LTV  = inp.value > 0 ? (inp.loan / inp.value) * 100 : 0
+  const totalProjectCost = inp.landCost + inp.cost
+  const YOC = totalProjectCost > 0 ? (NOI / totalProjectCost) * 100 : 0
+  const LTV = inp.value > 0 ? (inp.loan / inp.value) * 100 : 0
   const DSCR = DS > 0 ? NOI / DS : 0
   const spreadBps = Math.round((YOC - capR) * 100)
 
   const fields = [
-    { label: 'Units',                    key: 'units',     prefix: '',  suffix: '' },
-    { label: 'Avg Monthly Rent',         key: 'avgRent',   prefix: '$', suffix: '' },
-    { label: 'Vacancy Rate',             key: 'vacPct',    prefix: '',  suffix: '%' },
-    { label: 'Ancillary Income (Annual)',key: 'ancillary', prefix: '$', suffix: '' },
-    { label: 'Operating Expense Ratio',  key: 'opExPct',   prefix: '',  suffix: '%' },
-    { label: 'Loan Amount',              key: 'loan',      prefix: '$', suffix: '' },
-    { label: 'Interest Rate',            key: 'rate',      prefix: '',  suffix: '%' },
-    { label: 'Loan Term (years)',        key: 'term',      prefix: '',  suffix: '' },
-    { label: 'Total Project Cost',       key: 'cost',      prefix: '$', suffix: '' },
-    { label: 'Property Value',           key: 'value',     prefix: '$', suffix: '' },
+    { label: 'Vacancy Rate', key: 'vacPct', prefix: '', suffix: '%' },
+    { label: 'Ancillary Income (Annual)', key: 'ancillary', prefix: '$', suffix: '' },
+    { label: 'Operating Expense Ratio', key: 'opExPct', prefix: '', suffix: '%' },
+    { label: 'Loan Amount', key: 'loan', prefix: '$', suffix: '' },
+    { label: 'Interest Rate', key: 'rate', prefix: '', suffix: '%' },
+    { label: 'Loan Term (years)', key: 'term', prefix: '', suffix: '' },
+    { label: 'Land acquisition cost', key: 'landCost', prefix: '$', suffix: '' },
+    { label: 'Construction & soft costs (excl. land)', key: 'cost', prefix: '$', suffix: '' },
+    { label: 'Property Value', key: 'value', prefix: '$', suffix: '' },
   ]
 
   const waterfall = [
-    { label: 'Gross Potential Rent (GPR)',                  val: fmtUSD(GPR),   color: C.navy,  bold: true,  indent: false },
-    { label: `− Vacancy & Credit Loss (${inp.vacPct}%)`,   val: `(${fmtUSD(vacL)})`, color: C.red, bold: false, indent: true },
-    { label: '+ Ancillary Income',                          val: fmtUSD(inp.ancillary), color: C.green, bold: false, indent: true },
-    { label: 'Effective Gross Income (EGI)',                val: fmtUSD(EGI),   color: C.blue,  bold: true,  indent: false },
+    { label: 'Gross Potential Rent (GPR)', val: fmtUSD(GPR), color: C.navy, bold: true, indent: false },
+    { label: `− Vacancy & Credit Loss (${inp.vacPct}%)`, val: `(${fmtUSD(vacL)})`, color: C.red, bold: false, indent: true },
+    { label: '+ Ancillary Income', val: fmtUSD(inp.ancillary), color: C.green, bold: false, indent: true },
+    { label: 'Effective Gross Income (EGI)', val: fmtUSD(EGI), color: C.blue, bold: true, indent: false },
     { label: `− Operating Expenses (${inp.opExPct}% of EGI)`, val: `(${fmtUSD(opEx)})`, color: C.red, bold: false, indent: true },
-    { label: 'Net Operating Income (NOI)',                  val: fmtUSD(NOI),   color: C.navy,  bold: true,  indent: false },
-    { label: '− Annual Debt Service',                       val: `(${fmtUSD(DS)})`, color: C.red, bold: false, indent: true },
-    { label: 'Cash Flow Before Tax (CFBT)',                 val: fmtUSD(CFBT),  color: CFBT >= 0 ? C.green : C.red, bold: true, indent: false },
+    { label: 'Net Operating Income (NOI)', val: fmtUSD(NOI), color: C.navy, bold: true, indent: false },
+    { label: '− Annual Debt Service', val: `(${fmtUSD(DS)})`, color: C.red, bold: false, indent: true },
+    { label: 'Cash Flow Before Tax (CFBT)', val: fmtUSD(CFBT), color: CFBT >= 0 ? C.green : C.red, bold: true, indent: false },
   ]
 
   const metrics = [
-    { label: 'Cap Rate',  val: fmtPct(capR), pass: null,       note: 'NOI ÷ Value'   },
-    { label: 'YOC',       val: fmtPct(YOC),  pass: null,       note: 'NOI ÷ Cost'    },
-    { label: 'LTV',       val: fmtPct(LTV),  pass: LTV <= 75,  note: LTV <= 75 ? '✓ ≤ 75%' : '✗ > 75%' },
-    { label: 'DSCR',      val: fmtX(DSCR),   pass: DSCR >= 1.25, note: DSCR >= 1.25 ? '✓ ≥ 1.25x' : '✗ < 1.25x' },
+    { label: 'Cap Rate', val: fmtPct(capR), pass: null, note: 'NOI ÷ Value' },
+    { label: 'YOC', val: fmtPct(YOC), pass: null, note: 'NOI ÷ Total project cost' },
+    { label: 'LTV', val: fmtPct(LTV), pass: LTV <= 75, note: LTV <= 75 ? '✓ ≤ 75%' : '✗ > 75%' },
+    { label: 'DSCR', val: fmtX(DSCR), pass: DSCR >= 1.25, note: DSCR >= 1.25 ? '✓ ≥ 1.25x' : '✗ < 1.25x' },
   ]
 
   return (
@@ -435,9 +465,68 @@ function ProFormaCalc() {
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: C.navy, marginBottom: '1.25rem' }}>📊 Interactive Pro Forma Calculator</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
 
-        {/* Inputs */}
         <div>
-          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Inputs</p>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem' }}>Unit mix</p>
+          <div style={{ marginBottom: '0.65rem', padding: '0.65rem 0.75rem', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 72px 1fr', gap: '0.35rem 0.5rem', alignItems: 'center', marginBottom: '0.45rem' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: C.muted }}>Type</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: C.muted, textAlign: 'center' }}>Units</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: C.muted }}>Avg $/mo</span>
+            </div>
+            {PRO_FORMA_UNIT_TYPES.map(({ label, countKey, rentKey }) => (
+              <div key={countKey} style={{ display: 'grid', gridTemplateColumns: '1fr 72px 1fr', gap: '0.35rem 0.5rem', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <span style={{ fontSize: '0.78rem', color: '#444' }}>{label}</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={inp[countKey]}
+                  onChange={e => set(countKey, e.target.value)}
+                  style={{ border: `1px solid ${C.border}`, borderRadius: '6px', padding: '0.28rem 0.35rem', fontSize: '0.82rem', textAlign: 'center', width: '100%' }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
+                  <span style={{ padding: '0.28rem 0.4rem', background: '#e9ecef', fontSize: '0.75rem', color: '#666' }}>$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={inp[rentKey]}
+                    onChange={e => set(rentKey, e.target.value)}
+                    style={{ border: 'none', background: 'transparent', padding: '0.28rem 0.35rem', width: '100%', fontSize: '0.82rem', outline: 'none', color: C.text }}
+                  />
+                </div>
+              </div>
+            ))}
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.72rem', color: C.muted, lineHeight: 1.45 }}>
+              <strong style={{ color: '#555' }}>{totalUnits}</strong> units total · blended avg rent <strong style={{ color: C.navy }}>{fmtUSD(blendedAvgRent)}</strong>/mo
+            </p>
+          </div>
+
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem' }}>Building (soft cost $/SF & $/unit)</p>
+          <p style={{ fontSize: '0.72rem', color: C.muted, margin: '0 0 0.5rem', lineHeight: 1.45 }}>
+            These feed the <strong style={{ color: '#555' }}>Soft Cost Budget</strong> below: pro forma GSF, stories, and parking.
+          </p>
+          <div style={{ marginBottom: '0.75rem' }}>
+            {[
+              { label: 'Building GSF (pro forma)', key: 'buildingGsf', prefix: '', suffix: 'sf' },
+              { label: 'Stories', key: 'stories', prefix: '', suffix: '' },
+              { label: 'Parking spaces', key: 'parking', prefix: '', suffix: '' },
+            ].map(({ label, key, prefix, suffix }) => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.55rem' }}>
+                <label style={{ fontSize: '0.78rem', color: '#444', width: '185px', flexShrink: 0 }}>{label}</label>
+                <div style={{ display: 'flex', alignItems: 'center', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', flex: 1 }}>
+                  {prefix && <span style={{ padding: '0.3rem 0.5rem', background: '#e9ecef', fontSize: '0.8rem', color: '#666' }}>{prefix}</span>}
+                  <input
+                    type="number"
+                    value={inp[key]}
+                    onChange={e => set(key, e.target.value)}
+                    style={{ border: 'none', background: 'transparent', padding: '0.3rem 0.5rem', width: '100%', fontSize: '0.85rem', outline: 'none', color: C.text }}
+                  />
+                  {suffix && <span style={{ padding: '0.3rem 0.5rem', background: '#e9ecef', fontSize: '0.8rem', color: '#666' }}>{suffix}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Other inputs</p>
           {fields.map(({ label, key, prefix, suffix }) => (
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.55rem' }}>
               <label style={{ fontSize: '0.78rem', color: '#444', width: '185px', flexShrink: 0 }}>{label}</label>
@@ -453,12 +542,13 @@ function ProFormaCalc() {
               </div>
             </div>
           ))}
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.72rem', color: C.muted, paddingLeft: '0.15rem' }}>
+            Total project cost (land + construction and soft): <strong style={{ color: C.navy }}>{fmtUSD(totalProjectCost)}</strong>
+          </p>
         </div>
 
-        {/* Outputs */}
         <div>
           <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Pro Forma Waterfall</p>
-
           <div style={{ marginBottom: '1.25rem' }}>
             {waterfall.map((row, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: `0.28rem ${row.indent ? '1.2rem' : '0.6rem'}`, background: row.bold ? '#F0F4F8' : 'transparent', borderRadius: '4px' }}>
@@ -479,7 +569,6 @@ function ProFormaCalc() {
             ))}
           </div>
 
-          {/* Spread badge */}
           <div style={{ padding: '0.75rem 1rem', background: spreadBps >= 100 ? C.greenL : C.redL, border: `1px solid ${spreadBps >= 100 ? C.green : C.red}`, borderRadius: '8px' }}>
             <p style={{ margin: 0, fontWeight: 700, fontSize: '0.84rem', color: spreadBps >= 100 ? '#1E8449' : '#C0392B' }}>
               {spreadBps >= 100 ? '✓' : '✗'} Development Spread: {spreadBps} bps
@@ -492,6 +581,436 @@ function ProFormaCalc() {
         </div>
       </div>
     </div>
+  )
+}
+
+/** Initial line items (budget / actual only — %, $/SF, $/unit are derived) */
+const INITIAL_SOFT_ROWS = [
+  { name: 'Architectural', budget: 159000, actual: 138000 },
+  { name: 'Structural', budget: 52000, actual: 48000 },
+  { name: 'Shoring', budget: 38000, actual: 25000 },
+  { name: 'Civil', budget: 28000, actual: 22000 },
+  { name: 'Soils Report', budget: 15000, actual: 10000 },
+  { name: 'Surveyor', budget: 18500, actual: 13500 },
+  { name: 'Mechanical / Plumbing', budget: 21000, actual: 15500 },
+  { name: 'Electrical', budget: 19500, actual: 14000 },
+  { name: 'Title 24', budget: 16500, actual: 12000 },
+  { name: 'Low Voltage', budget: 11000, actual: 8000 },
+  { name: 'Dry Utility', budget: 12500, actual: 9000 },
+  { name: 'Tree Consultant', budget: 10000, actual: 8000 },
+  { name: 'Landscape', budget: 22000, actual: 16000 },
+  { name: 'Exterior Building Maintenance', budget: 17500, actual: 13000 },
+  { name: 'Value Engineering / Preconstruction', budget: 23500, actual: 17000 },
+  { name: 'Development Consultant', budget: 38750, actual: 28350 },
+]
+
+const INITIAL_FEE_ROWS = [
+  { name: 'Planning Fees (PZA, SB330, LADBS)', budget: 155000, actual: 155000 },
+  { name: 'Permits (Building, Grading, MEP)', budget: 128750, actual: 128750 },
+  { name: 'Linkage Fee (N/R if Affordable)', budget: 57500, actual: 57500 },
+]
+
+const PROJECT_META = {
+  name: 'St Rest Phase 1',
+  type: 'SDBL + ED1',
+}
+
+const INITIAL_ACTUAL_BUILDING = {
+  sqft: 33261,
+  units: 62,
+  stories: 4,
+  parking: 27,
+}
+
+const fmtNum = n => (typeof n === 'number' && Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—')
+
+const th = {
+  fontSize: '0.65rem',
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.04em',
+  color: '#444',
+  padding: '0.45rem 0.35rem',
+  borderBottom: `2px solid ${C.border}`,
+  textAlign: 'left',
+}
+const td = {
+  fontSize: '0.78rem',
+  padding: '0.38rem 0.35rem',
+  borderBottom: `1px solid ${C.border}`,
+  verticalAlign: 'middle',
+}
+const tdR = { ...td, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
+const tdBlueR = { ...tdR, color: C.blue, fontWeight: 600 }
+
+const inpMoney = {
+  border: `1px solid ${C.border}`,
+  borderRadius: '4px',
+  padding: '0.22rem 0.35rem',
+  fontSize: '0.78rem',
+  width: '100%',
+  maxWidth: '96px',
+  textAlign: 'right',
+  fontVariantNumeric: 'tabular-nums',
+  color: C.blue,
+  fontWeight: 600,
+  background: 'white',
+}
+
+function pctOf(n, d) {
+  if (!d || d <= 0) return null
+  return (n / d) * 100
+}
+
+function divSafe(n, d) {
+  if (!d || d <= 0) return null
+  return n / d
+}
+
+function EditableRow({
+  num, name, pct, psf, punit, budget, actual, delta, alt,
+  onBudget, onActual,
+}) {
+  return (
+    <tr style={{ background: alt ? '#fafbfc' : 'white' }}>
+      <td style={{ ...td, width: '28px', color: C.muted, fontSize: '0.72rem' }}>{num}</td>
+      <td style={{ ...td, color: '#333' }}>{name}</td>
+      <td style={tdR}>{pct != null ? `${fmtNum(pct)}%` : '—'}</td>
+      <td style={tdR}>{psf != null ? fmtNum(psf) : '—'}</td>
+      <td style={tdR}>{punit != null ? fmtNum(punit) : '—'}</td>
+      <td style={tdBlueR}>
+        <input type="number" min={0} step={100} value={budget ?? ''} onChange={e => onBudget(e.target.value)} style={inpMoney} />
+      </td>
+      <td style={tdBlueR}>
+        <input type="number" min={0} step={100} value={actual ?? ''} onChange={e => onActual(e.target.value)} style={inpMoney} />
+      </td>
+      <td style={{ ...tdR, color: delta > 0 ? C.green : delta < 0 ? C.red : C.muted, fontWeight: 600 }}>{delta != null ? fmtUSD(delta) : '—'}</td>
+    </tr>
+  )
+}
+
+function SubRow({ label, pct, psf, punit, budget, actual, delta, strong }) {
+  return (
+    <tr style={{ background: '#eef2f7', fontWeight: strong ? 800 : 700 }}>
+      <td style={{ ...td, borderBottom: `2px solid ${C.border}` }} colSpan={2}>{label}</td>
+      <td style={{ ...tdR, borderBottom: `2px solid ${C.border}` }}>{pct != null ? `${fmtNum(pct)}%` : '—'}</td>
+      <td style={{ ...tdR, borderBottom: `2px solid ${C.border}` }}>{psf != null ? fmtNum(psf) : '—'}</td>
+      <td style={{ ...tdR, borderBottom: `2px solid ${C.border}` }}>{punit != null ? fmtNum(punit) : '—'}</td>
+      <td style={{ ...tdBlueR, borderBottom: `2px solid ${C.border}` }}>{fmtUSD(budget)}</td>
+      <td style={{ ...tdBlueR, borderBottom: `2px solid ${C.border}` }}>{fmtUSD(actual)}</td>
+      <td style={{ ...tdR, borderBottom: `2px solid ${C.border}`, color: delta > 0 ? C.green : delta < 0 ? C.red : C.muted }}>{fmtUSD(delta)}</td>
+    </tr>
+  )
+}
+
+const metaInp = {
+  border: `1px solid ${C.border}`,
+  borderRadius: '4px',
+  padding: '0.2rem 0.35rem',
+  fontSize: '0.78rem',
+  width: '88px',
+  textAlign: 'right',
+  fontVariantNumeric: 'tabular-nums',
+}
+
+const projectTextInp = {
+  border: `1px solid ${C.border}`,
+  borderRadius: '6px',
+  padding: '0.35rem 0.5rem',
+  fontSize: '0.85rem',
+  width: '100%',
+  maxWidth: '280px',
+  color: C.navy,
+  fontWeight: 700,
+  background: 'white',
+  boxSizing: 'border-box',
+}
+
+const projectTypeInp = {
+  ...projectTextInp,
+  fontWeight: 600,
+  color: '#333',
+}
+
+function SoftCostBudget({
+  projectMeta,
+  setProjectMeta,
+  proformaSf,
+  proformaUnits,
+  proformaStories,
+  proformaParking,
+  constructionSoftCost,
+  actualMeta,
+  setActualMeta,
+  softRows,
+  setSoftRows,
+  feeRows,
+  setFeeRows,
+}) {
+  const grandDen = softRows.reduce((s, r) => s + (r.budget || 0), 0) + feeRows.reduce((s, r) => s + (r.budget || 0), 0)
+
+  const rowDerived = (budget) => ({
+    pct: pctOf(budget, grandDen),
+    psf: divSafe(budget, proformaSf),
+    punit: divSafe(budget, proformaUnits),
+  })
+
+  const sumBudget = rows => rows.reduce((s, r) => s + (r.budget || 0), 0)
+  const sumActual = rows => rows.reduce((s, r) => s + (r.actual || 0), 0)
+
+  const subSoftB = sumBudget(softRows)
+  const subSoftA = sumActual(softRows)
+  const subFeeB = sumBudget(feeRows)
+  const subFeeA = sumActual(feeRows)
+  const grandB = subSoftB + subFeeB
+  const grandA = subSoftA + subFeeA
+
+  const setActual = (k, v) => {
+    const n = parseFloat(v)
+    setActualMeta(m => ({ ...m, [k]: Number.isFinite(n) ? n : 0 }))
+  }
+
+  const updateSoft = (i, field, raw) => {
+    const n = parseFloat(raw)
+    const v = Number.isFinite(n) ? n : 0
+    setSoftRows(rows => {
+      const next = [...rows]
+      next[i] = { ...next[i], [field]: v }
+      return next
+    })
+  }
+
+  const updateFee = (i, field, raw) => {
+    const n = parseFloat(raw)
+    const v = Number.isFinite(n) ? n : 0
+    setFeeRows(rows => {
+      const next = [...rows]
+      next[i] = { ...next[i], [field]: v }
+      return next
+    })
+  }
+
+  const subSoftDerived = rowDerived(subSoftB)
+  const subFeeDerived = rowDerived(subFeeB)
+  const grandDerived = rowDerived(grandB)
+
+  const pctOfCs = constructionSoftCost > 0 ? (grandB / constructionSoftCost) * 100 : null
+
+  return (
+    <div style={{ marginTop: '2rem', paddingTop: '1.75rem', borderTop: `1px solid ${C.border}` }}>
+      <div style={{ background: '#152a45', color: 'white', padding: '0.55rem 1rem', borderRadius: '8px 8px 0 0', fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05rem', fontWeight: 700, letterSpacing: '0.02em' }}>
+        Soft Cost Budget
+      </div>
+
+      <div style={{ border: `1px solid ${C.border}`, borderTop: 'none', borderRadius: '0 0 10px 10px', overflow: 'hidden', background: 'white' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', justifyContent: 'space-between', padding: '1rem 1rem 0.75rem', background: '#f8f9fb', borderBottom: `1px solid ${C.border}` }}>
+          <div>
+            <p style={{ margin: '0 0 0.25rem', fontSize: '0.72rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Project</p>
+            <input
+              type="text"
+              value={projectMeta.name}
+              onChange={e => setProjectMeta(m => ({ ...m, name: e.target.value }))}
+              style={projectTextInp}
+              aria-label="Project name"
+            />
+            <p style={{ margin: '0.35rem 0 0', fontSize: '0.72rem', color: C.muted }}>Project type</p>
+            <input
+              type="text"
+              value={projectMeta.type}
+              onChange={e => setProjectMeta(m => ({ ...m, type: e.target.value }))}
+              style={projectTypeInp}
+              aria-label="Project type"
+            />
+          </div>
+          <table style={{ borderCollapse: 'collapse', fontSize: '0.75rem', minWidth: '300px' }}>
+            <thead>
+              <tr>
+                <th style={{ padding: '0.25rem 0.75rem', textAlign: 'left', color: C.muted, fontWeight: 600 }} />
+                <th style={{ padding: '0.25rem 0.5rem', textAlign: 'right', color: C.navy, fontWeight: 700 }}>Proforma</th>
+                <th style={{ padding: '0.25rem 0.5rem', textAlign: 'right', color: C.blue, fontWeight: 700 }}>Actual</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}>Sq. Ft.</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{typeof proformaSf === 'number' ? proformaSf.toLocaleString() : '—'}</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
+                  <input type="number" min={0} step={1} value={actualMeta.sqft || ''} onChange={e => setActual('sqft', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}># of Units</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{typeof proformaUnits === 'number' ? proformaUnits.toLocaleString() : '—'}</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
+                  <input type="number" min={0} step={1} value={actualMeta.units || ''} onChange={e => setActual('units', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}># of Stories</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{proformaStories}</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
+                  <input type="number" min={0} step={1} value={actualMeta.stories || ''} onChange={e => setActual('stories', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}>Parking</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{proformaParking}</td>
+                <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
+                  <input type="number" min={0} step={1} value={actualMeta.parking || ''} onChange={e => setActual('parking', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style={{ margin: 0, padding: '0.65rem 1rem 0.35rem', fontSize: '0.72rem', fontWeight: 800, color: C.navy, textTransform: 'uppercase', letterSpacing: '0.06em' }}>List of consultants</p>
+        <p style={{ margin: '0 1rem 0.5rem', fontSize: '0.72rem', color: C.muted, lineHeight: 1.45 }}>
+          Pro forma column uses <strong style={{ color: '#555' }}>building GSF</strong> and <strong style={{ color: '#555' }}>unit count</strong> from the calculator above. Edit budget and actual; % of total, $/SF, and $/unit update automatically.
+        </p>
+
+        {constructionSoftCost > 0 && (
+          <p style={{ margin: '0 1rem 0.65rem', fontSize: '0.75rem', padding: '0.55rem 0.75rem', background: '#f0f7ff', border: `1px solid ${C.border}`, borderRadius: '8px', color: '#333' }}>
+            <strong style={{ color: C.navy }}>vs. pro forma C&amp;S line:</strong>{' '}
+            Soft + fees (budget total) {fmtUSD(grandB)} is{' '}
+            {pctOfCs != null ? (
+              <><strong>{fmtNum(pctOfCs)}%</strong> of Construction &amp; soft costs (excl. land) {fmtUSD(constructionSoftCost)}.</>
+            ) : (
+              '—'
+            )}
+            {' '}Remainder covers hard construction and contingency.
+          </p>
+        )}
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '720px' }}>
+            <thead>
+              <tr>
+                <th style={{ ...th, width: '28px' }}>#</th>
+                <th style={th}>Item</th>
+                <th style={{ ...th, textAlign: 'right' }}>% total</th>
+                <th style={{ ...th, textAlign: 'right' }}>$/SF</th>
+                <th style={{ ...th, textAlign: 'right' }}>$/unit</th>
+                <th style={{ ...th, textAlign: 'right', color: C.blue }}>Budget (8/6)</th>
+                <th style={{ ...th, textAlign: 'right', color: C.blue }}>Actual</th>
+                <th style={{ ...th, textAlign: 'right' }}>Delta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colSpan={8} style={{ ...td, fontSize: '0.68rem', fontWeight: 800, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', paddingTop: '0.65rem', background: '#f0f3f8' }}>
+                  Soft costs
+                </td>
+              </tr>
+              {softRows.map((row, i) => {
+                const d = rowDerived(row.budget)
+                return (
+                  <EditableRow
+                    key={i}
+                    num={i + 1}
+                    name={row.name}
+                    pct={d.pct}
+                    psf={d.psf}
+                    punit={d.punit}
+                    budget={row.budget}
+                    actual={row.actual}
+                    delta={row.budget - row.actual}
+                    alt={i % 2 === 1}
+                    onBudget={v => updateSoft(i, 'budget', v)}
+                    onActual={v => updateSoft(i, 'actual', v)}
+                  />
+                )
+              })}
+              <SubRow
+                label="Sub-total soft costs"
+                pct={subSoftDerived.pct}
+                psf={divSafe(subSoftB, proformaSf)}
+                punit={divSafe(subSoftB, proformaUnits)}
+                budget={subSoftB}
+                actual={subSoftA}
+                delta={subSoftB - subSoftA}
+                strong
+              />
+
+              <tr>
+                <td colSpan={8} style={{ ...td, fontSize: '0.68rem', fontWeight: 800, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', paddingTop: '0.65rem', background: '#f0f3f8' }}>
+                  Fee costs
+                </td>
+              </tr>
+              {feeRows.map((row, i) => {
+                const d = rowDerived(row.budget)
+                return (
+                  <EditableRow
+                    key={i}
+                    num={i + 1}
+                    name={row.name}
+                    pct={d.pct}
+                    psf={d.psf}
+                    punit={d.punit}
+                    budget={row.budget}
+                    actual={row.actual}
+                    delta={row.budget - row.actual}
+                    alt={i % 2 === 1}
+                    onBudget={v => updateFee(i, 'budget', v)}
+                    onActual={v => updateFee(i, 'actual', v)}
+                  />
+                )
+              })}
+              <SubRow
+                label="Sub-total fee costs"
+                pct={subFeeDerived.pct}
+                psf={divSafe(subFeeB, proformaSf)}
+                punit={divSafe(subFeeB, proformaUnits)}
+                budget={subFeeB}
+                actual={subFeeA}
+                delta={subFeeB - subFeeA}
+                strong={false}
+              />
+
+              <SubRow
+                label="Total"
+                pct={grandDerived.pct}
+                psf={divSafe(grandB, proformaSf)}
+                punit={divSafe(grandB, proformaUnits)}
+                budget={grandB}
+                actual={grandA}
+                delta={grandB - grandA}
+                strong
+              />
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+function ProFormaTab() {
+  const [inp, setInp] = useState(DEFAULT_PROFORMA_INP)
+  const [softRows, setSoftRows] = useState(INITIAL_SOFT_ROWS)
+  const [feeRows, setFeeRows] = useState(INITIAL_FEE_ROWS)
+  const [actualMeta, setActualMeta] = useState(INITIAL_ACTUAL_BUILDING)
+  const [projectMeta, setProjectMeta] = useState(() => ({ ...PROJECT_META }))
+  const totalUnits = inp.uStudio + inp.u1 + inp.u2 + inp.u3
+  return (
+    <>
+      <ProFormaCalc inp={inp} setInp={setInp} />
+      <SoftCostBudget
+        projectMeta={projectMeta}
+        setProjectMeta={setProjectMeta}
+        proformaSf={inp.buildingGsf}
+        proformaUnits={totalUnits}
+        proformaStories={inp.stories}
+        proformaParking={inp.parking}
+        constructionSoftCost={inp.cost}
+        actualMeta={actualMeta}
+        setActualMeta={setActualMeta}
+        softRows={softRows}
+        setSoftRows={setSoftRows}
+        feeRows={feeRows}
+        setFeeRows={setFeeRows}
+      />
+    </>
   )
 }
 
@@ -957,7 +1476,7 @@ function DomainComingSoon({ domain }) {
             ) : tab === 'lesson' ? (
               <LessonView week={week} domainColor={domain.color} />
             ) : tab === 'proforma' && hasContent ? (
-              <ProFormaCalc />
+              <ProFormaTab />
             ) : tab === 'caprate' && hasContent ? (
               <CapRateExplorer />
             ) : tab === 'quiz' && hasContent ? (

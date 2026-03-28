@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DOMAINS, C } from '../data/courseData'
 import LessonView from '../components/LessonView'
-import ProFormaCalc from '../components/ProFormaCalc'
+import ProFormaTab from '../components/ProFormaTab'
 import CapRateExplorer from '../components/CapRateExplorer'
 import Quiz from '../components/Quiz'
 import DomainLocked from '../components/DomainLocked'
@@ -186,7 +186,7 @@ export default function Course({ user, profile }) {
                   tab === 'lesson' ? (
                     <LessonView week={week} domainColor={domain.color} domainId={1} />
                   ) : tab === 'proforma' && hasContent ? (
-                    <ProFormaCalc />
+                    <ProFormaTab />
                   ) : tab === 'caprate' && hasContent ? (
                     <CapRateExplorer />
                   ) : tab === 'quiz' && hasContent ? (
