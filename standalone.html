@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parada Capital Learning Series</title>
+  <title>Parada Capital LLC x HTA Construction &amp; Development Inc — Builder Academy</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -44,6 +44,16 @@ const C = {
   muted:  '#888',
   text:   '#333',
 }
+
+const _brandGradDark = {
+  background: 'linear-gradient(180deg, #ffffff 0%, #c5d8ec 55%, #8fa8c4 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+  filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.45))',
+}
+const partnershipLineDark = { margin: 0, fontSize: '1.08rem', fontWeight: 800, letterSpacing: '0.1em', lineHeight: 1.45, textTransform: 'uppercase', ..._brandGradDark }
+const builderAcademyTitleDark = { margin: '0.45rem 0 0', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', ..._brandGradDark }
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const DOMAINS = [
@@ -802,15 +812,26 @@ function DomainComingSoon({ domain }) {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F0F3F7' }}>
 
       {/* ── Header ── */}
-      <header style={{ background: C.navy, color: 'white', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+      <header style={{
+        background: 'linear-gradient(165deg, #1a3555 0%, #152a45 42%, #0c1829 100%)',
+        color: 'white',
+        padding: '0.95rem 1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexShrink: 0,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          <button onClick={() => setSide(s => !s)} style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: 'white', width: '32px', height: '32px', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button onClick={() => setSide(s => !s)} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
             ☰
           </button>
-          <div>
-            <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>Parada Capital</p>
-            <p style={{ margin: '0.2rem 0 0', fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.55 }}>HTA Construction</p>
-            <h1 style={{ margin: '0.35rem 0 0', fontSize: '1.15rem', fontWeight: 900, letterSpacing: '-0.01em' }}>Learning Series</h1>
+          <div style={{ borderLeft: '4px solid rgba(100, 155, 220, 0.55)', paddingLeft: '0.95rem', boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.12)' }}>
+            <p style={partnershipLineDark}>
+              Parada Capital LLC x HTA Construction &amp; Development Inc
+            </p>
+            <h1 style={builderAcademyTitleDark}>Builder Academy</h1>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>

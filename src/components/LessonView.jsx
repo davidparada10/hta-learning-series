@@ -1,10 +1,41 @@
 import { useState } from 'react'
-import { C } from '../data/courseData'
+import { DOMAINS, C } from '../data/courseData'
 
-export default function LessonView({ week, domainColor }) {
+export default function LessonView({ week, domainColor, domainId = 1 }) {
   const [openTerm, setOpenTerm] = useState(null)
 
   if (!week.vocabulary) {
+    if (domainId !== 1) {
+      if (week.week === 12) {
+        return (
+          <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <p style={{ fontWeight: 700, color: domainColor, fontSize: '1.05rem', marginBottom: '0.5rem' }}>Week 12: {week.title}</p>
+            <p style={{ fontSize: '0.85rem', color: C.muted, maxWidth: '420px', margin: '0 auto', lineHeight: 1.65 }}>
+              Final review and assessment content will be added here. When you are ready to move on, use the section below to mark Domain {domainId} complete
+              {domainId < DOMAINS.length ? ` and unlock Domain ${domainId + 1}` : ''}.
+            </p>
+          </div>
+        )
+      }
+      return (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+          <p style={{ fontWeight: 700, color: '#444', fontSize: '1rem', marginBottom: '0.5rem' }}>Week {week.week}: {week.title}</p>
+          <p style={{ fontSize: '0.85rem', color: C.muted, maxWidth: '400px', margin: '0 auto', lineHeight: 1.6 }}>
+            Lesson materials for this week will be published here. Use the week list in the sidebar to track the full 12-week plan for Domain {domainId}.
+          </p>
+        </div>
+      )
+    }
+    if (week.week === 12) {
+      return (
+        <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+          <p style={{ fontWeight: 700, color: domainColor, fontSize: '1.05rem', marginBottom: '0.5rem' }}>Week 12: {week.title}</p>
+          <p style={{ fontSize: '0.85rem', color: C.muted, maxWidth: '420px', margin: '0 auto', lineHeight: 1.65 }}>
+            Final review and assessment content will be added here. When you are ready to move on, use the section below to mark Domain 1 complete and unlock Domain 2.
+          </p>
+        </div>
+      )
+    }
     return (
       <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔒</div>

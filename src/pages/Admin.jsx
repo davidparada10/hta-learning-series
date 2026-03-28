@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { C } from '../data/courseData'
+import { partnershipLineDark, builderAcademyWordmarkDark } from '../lib/brandStyles'
 
 export default function Admin({ user, profile }) {
   const [users, setUsers]       = useState([])
@@ -49,10 +50,24 @@ export default function Admin({ user, profile }) {
     <div style={{ minHeight: '100vh', background: '#F0F3F7', display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
-      <header style={{ background: C.navy, color: 'white', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>HTA Construction & Development</p>
-          <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>Learning Series — Admin</h1>
+      <header style={{
+        background: 'linear-gradient(165deg, #1a3555 0%, #152a45 42%, #0c1829 100%)',
+        color: 'white',
+        padding: '0.95rem 1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <div style={{ borderLeft: '4px solid rgba(100, 155, 220, 0.55)', paddingLeft: '0.95rem', boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.12)' }}>
+            <p style={partnershipLineDark}>
+              Parada Capital LLC x HTA Construction & Development Inc
+            </p>
+            <h1 style={{ margin: '0.45rem 0 0', display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '0.35rem' }}>
+              <span style={builderAcademyWordmarkDark}>Builder Academy</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.72)', textTransform: 'none' }}>— Admin</span>
+            </h1>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <a href="/" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.12)', padding: '0.3rem 0.75rem', borderRadius: '6px', textDecoration: 'none' }}>

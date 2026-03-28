@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { C } from '../data/courseData'
+import { partnershipLineLight, builderAcademyTitleLight } from '../lib/brandStyles'
 
 export default function Auth() {
   const [mode, setMode]       = useState('login')   // 'login' | 'signup'
@@ -34,9 +35,20 @@ export default function Auth() {
     <div style={{ minHeight: '100vh', background: '#F0F3F7', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem' }}>
 
       {/* Brand */}
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <p style={{ margin: '0 0 0.25rem', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>HTA Construction & Development</p>
-        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: C.navy }}>Learning Series</h1>
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '2rem',
+        maxWidth: '460px',
+        padding: '1.25rem 1rem 1.5rem',
+        borderRadius: '16px',
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(236,242,250,0.88) 100%)',
+        boxShadow: '0 8px 32px rgba(27, 42, 74, 0.12), 0 1px 0 rgba(255,255,255,0.9) inset',
+        border: '1px solid rgba(255,255,255,0.8)',
+      }}>
+        <p style={partnershipLineLight}>
+          Parada Capital LLC x HTA Construction & Development Inc
+        </p>
+        <h1 style={builderAcademyTitleLight}>Builder Academy</h1>
       </div>
 
       {/* Card */}
