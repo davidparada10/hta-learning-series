@@ -35,7 +35,8 @@ export default function Auth() {
 
       {/* Brand */}
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <p style={{ margin: '0 0 0.25rem', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>HTA Construction & Development</p>
+        <p style={{ margin: '0 0 0.15rem', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>Parada Capital</p>
+        <p style={{ margin: '0 0 0.35rem', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: C.muted, opacity: 0.9 }}>HTA Construction</p>
         <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: C.navy }}>Learning Series</h1>
       </div>
 

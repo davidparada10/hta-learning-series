@@ -16,6 +16,7 @@ export default function Course({ user, profile }) {
   const domain     = DOMAINS[domIdx]
   const week       = domain.weeks[wkIdx]
   const hasContent = domain.id === 1 && week.week === 1
+  const weekStatusLabel = week.status === 'active' ? 'Active' : week.status === 'upcoming' ? 'Upcoming' : week.status
 
   const tabs = hasContent
     ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'proforma', label: '📊 Pro Forma' }, { id: 'caprate', label: '🔍 Cap Rates' }, { id: 'quiz', label: '📝 Quiz' }]
@@ -41,14 +42,15 @@ export default function Course({ user, profile }) {
             ☰
           </button>
           <div>
-            <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>HTA Construction & Development</p>
-            <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, letterSpacing: '-0.01em' }}>Learning Series</h1>
+            <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>Parada Capital</p>
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.55 }}>HTA Construction</p>
+            <h1 style={{ margin: '0.35rem 0 0', fontSize: '1.15rem', fontWeight: 900, letterSpacing: '-0.01em' }}>Learning Series</h1>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ textAlign: 'right' }}>
             <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.65 }}>{displayName}</p>
-            <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain 1, Week 1 · Active</p>
+            <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain {domain.id}, Week {week.week} · {weekStatusLabel}</p>
           </div>
           {isAdmin && (
             <a href="/admin" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.15)', padding: '0.3rem 0.75rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>
@@ -61,20 +63,48 @@ export default function Course({ user, profile }) {
         </div>
       </header>
 
-      {/* ── Domain nav ── */}
-      <nav style={{ background: 'white', borderBottom: `1px solid ${C.border}`, display: 'flex', overflowX: 'auto', flexShrink: 0 }}>
-        {DOMAINS.map((d, i) => (
-          <button key={d.id} onClick={() => switchDomain(i)} style={{
-            padding: '0.7rem 1.1rem', border: 'none',
-            borderBottom: domIdx === i ? `3px solid ${d.color}` : '3px solid transparent',
-            background: 'transparent',
-            color: domIdx === i ? d.color : C.muted,
-            fontWeight: domIdx === i ? 700 : 400,
-            cursor: 'pointer', fontSize: '0.82rem', whiteSpace: 'nowrap', transition: 'all 0.15s',
-          }}>
-            {d.icon} Domain {d.id}: {d.title}
-          </button>
-        ))}
+      {/* ── Domain nav (1 → 2 → 3 → 4) ── */}
+      <nav style={{ background: 'white', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
+        <button
+          type="button"
+          aria-label="Previous domain"
+          disabled={domIdx === 0}
+          onClick={() => switchDomain(domIdx - 1)}
+          style={{
+            flexShrink: 0, padding: '0 0.65rem', border: 'none', borderRight: `1px solid ${C.border}`,
+            background: domIdx === 0 ? '#f4f4f4' : 'white', color: domIdx === 0 ? '#ccc' : C.navy,
+            cursor: domIdx === 0 ? 'not-allowed' : 'pointer', fontSize: '1rem', fontWeight: 700,
+          }}
+        >
+          ←
+        </button>
+        <div style={{ display: 'flex', overflowX: 'auto', flex: 1, minWidth: 0 }}>
+          {DOMAINS.map((d, i) => (
+            <button key={d.id} onClick={() => switchDomain(i)} style={{
+              padding: '0.7rem 1.1rem', border: 'none',
+              borderBottom: domIdx === i ? `3px solid ${d.color}` : '3px solid transparent',
+              background: 'transparent',
+              color: domIdx === i ? d.color : C.muted,
+              fontWeight: domIdx === i ? 700 : 400,
+              cursor: 'pointer', fontSize: '0.82rem', whiteSpace: 'nowrap', transition: 'all 0.15s',
+            }}>
+              {d.icon} Domain {d.id}: {d.title}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          aria-label="Next domain"
+          disabled={domIdx === DOMAINS.length - 1}
+          onClick={() => switchDomain(domIdx + 1)}
+          style={{
+            flexShrink: 0, padding: '0 0.65rem', border: 'none', borderLeft: `1px solid ${C.border}`,
+            background: domIdx === DOMAINS.length - 1 ? '#f4f4f4' : 'white', color: domIdx === DOMAINS.length - 1 ? '#ccc' : C.navy,
+            cursor: domIdx === DOMAINS.length - 1 ? 'not-allowed' : 'pointer', fontSize: '1rem', fontWeight: 700,
+          }}
+        >
+          →
+        </button>
       </nav>
 
       {/* ── Body ── */}

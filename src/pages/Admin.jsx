@@ -51,8 +51,9 @@ export default function Admin({ user, profile }) {
       {/* Header */}
       <header style={{ background: C.navy, color: 'white', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>HTA Construction & Development</p>
-          <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>Learning Series — Admin</h1>
+          <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.65 }}>Parada Capital</p>
+          <p style={{ margin: '0.2rem 0 0', fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.55 }}>HTA Construction</p>
+          <h1 style={{ margin: '0.35rem 0 0', fontSize: '1.15rem', fontWeight: 900 }}>Learning Series — Admin</h1>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <a href="/" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.12)', padding: '0.3rem 0.75rem', borderRadius: '6px', textDecoration: 'none' }}>

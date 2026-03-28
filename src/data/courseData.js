@@ -87,7 +87,7 @@ export const DOMAINS = [
           },
           {
             heading: 'The Four Deal Checks',
-            body: 'Before any deal moves forward at HTA Construction, it must pass four checks: (1) NOI — does the property generate sufficient operating income? (2) Spread — is YOC at least 100–150 bps above market cap rate? (3) Stack — can the capital structure support the deal at acceptable LTV and DSCR? (4) Entitlement — what can actually be built on this site, and what does the approval timeline look like?',
+            body: 'Before any deal moves forward at Parada Capital, it must pass four checks: (1) NOI — does the property generate sufficient operating income? (2) Spread — is YOC at least 100–150 bps above market cap rate? (3) Stack — can the capital structure support the deal at acceptable LTV and DSCR? (4) Entitlement — what can actually be built on this site, and what does the approval timeline look like?',
           },
           {
             heading: 'SoCal Cap Rate Benchmarks (2024–2025)',
@@ -279,7 +279,7 @@ export const QUIZ = [
     exp: 'Senior debt is first in line for repayment and has the lowest risk. Because it\'s most protected, lenders accept a lower return (interest rate). Common equity is last in — highest risk, highest potential upside.',
   },
   {
-    q: 'The "Four Deal Checks" at HTA Construction are:',
+    q: 'The "Four Deal Checks" at Parada Capital are:',
     opts: ['Price, Rent, Vacancy, Expenses', 'NOI, Spread, Stack, Entitlement', 'LTV, DSCR, Cap Rate, YOC', 'GPR, EGI, NOI, CFBT'],
     a: 1,
     exp: 'The four deal checks: NOI (operating income check), Spread (YOC vs. market cap rate ≥ 100–150 bps), Stack (capital structure — LTV and DSCR), Entitlement (what can be built and on what timeline).',
