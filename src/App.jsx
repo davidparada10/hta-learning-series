@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase'
 import Auth from './pages/Auth'
 import Course from './pages/Course'
 import Admin from './pages/Admin'
+import About from './pages/About'
 
 export default function App() {
   const [session, setSession]   = useState(null)
@@ -37,7 +38,9 @@ export default function App() {
     setLoading(false)
   }
 
-  if (loading) {
+  const path = window.location.pathname
+
+  if (loading && path !== '/about') {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F3F7' }}>
         <div style={{ textAlign: 'center' }}>
@@ -46,6 +49,10 @@ export default function App() {
         </div>
       </div>
     )
+  }
+
+  if (path === '/about') {
+    return <About session={session} />
   }
 
   if (!session) {

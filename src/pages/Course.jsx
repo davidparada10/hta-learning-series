@@ -52,6 +52,9 @@ export default function Course({ user, profile }) {
             <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.65 }}>{displayName}</p>
             <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain {domain.id}, Week {week.week} · {weekStatusLabel}</p>
           </div>
+          <a href="/about" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.1)', padding: '0.3rem 0.75rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 600, border: '1px solid rgba(255,255,255,0.18)' }}>
+            About
+          </a>
           {isAdmin && (
             <a href="/admin" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.15)', padding: '0.3rem 0.75rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>
               Admin ↗

@@ -106,6 +106,9 @@ export default function Auth() {
             {mode === 'login' ? 'Sign up' : 'Sign in'}
           </button>
         </p>
+        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.82rem' }}>
+          <a href="/about" style={{ color: C.muted, fontWeight: 500 }}>About the Learning Series</a>
+        </p>
       </div>
     </div>
   )
