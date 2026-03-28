@@ -1,28 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HTA Learning Series</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif; background: #F0F3F7; color: #222; min-height: 100vh; }
-    button { font-family: inherit; }
-    input { font-family: inherit; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #aaa; }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel" data-presets="react">
-    const { useState } = React;
+import { useState } from 'react'
 
 // ─── PALETTE ─────────────────────────────────────────────────────────────────
 const C = {
@@ -920,10 +896,3 @@ export default function App() {
     </div>
   )
 }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(
-      React.createElement(React.StrictMode, null, React.createElement(App))
-    );
-  </script>
-</body>
-</html>
