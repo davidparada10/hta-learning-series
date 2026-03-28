@@ -8,6 +8,9 @@ const UNIT_TYPES = [
   { label: '3 bedroom', countKey: 'u3', rentKey: 'r3' },
 ]
 
+/** Conventional fixed-rate mortgage terms (years) */
+const CONVENTIONAL_LOAN_TERMS = [10, 15, 20, 25, 30]
+
 export const DEFAULT_PROFORMA_INP = {
   uStudio: 8, rStudio: 1900,
   u1: 15, r1: 2300,
@@ -46,7 +49,8 @@ export default function ProFormaCalc({ inp: inpProp, setInp: setInpProp }) {
   const opEx = EGI * (inp.opExPct / 100)
   const NOI = EGI - opEx
   const mr = inp.rate / 100 / 12
-  const np = inp.term * 12
+  const termYears = CONVENTIONAL_LOAN_TERMS.includes(Number(inp.term)) ? Number(inp.term) : 30
+  const np = termYears * 12
   const mp = inp.loan * (mr * Math.pow(1 + mr, np)) / (Math.pow(1 + mr, np) - 1)
   const DS = mp * 12
   const CFBT = NOI - DS
@@ -62,8 +66,8 @@ export default function ProFormaCalc({ inp: inpProp, setInp: setInpProp }) {
     { label: 'Ancillary Income (Annual)', key: 'ancillary', prefix: '$', suffix: '' },
     { label: 'Operating Expense Ratio', key: 'opExPct', prefix: '', suffix: '%' },
     { label: 'Loan Amount', key: 'loan', prefix: '$', suffix: '' },
-    { label: 'Interest Rate', key: 'rate', prefix: '', suffix: '%' },
-    { label: 'Loan Term (years)', key: 'term', prefix: '', suffix: '' },
+    { label: 'Interest Rate', key: 'rate', prefix: '', suffix: '%', step: 0.5 },
+    { label: 'Loan term (conventional)', key: 'term', termOptions: CONVENTIONAL_LOAN_TERMS },
     { label: 'Land acquisition cost', key: 'landCost', prefix: '$', suffix: '' },
     { label: 'Construction & soft costs (excl. land)', key: 'cost', prefix: '$', suffix: '' },
     { label: 'Property Value', key: 'value', prefix: '$', suffix: '' },
@@ -87,13 +91,14 @@ export default function ProFormaCalc({ inp: inpProp, setInp: setInpProp }) {
     { label: 'DSCR', val: fmtX(DSCR), pass: DSCR >= 1.25, note: DSCR >= 1.25 ? '✓ ≥ 1.25x' : '✗ < 1.25x' },
   ]
 
-  const inputRow = (label, key, prefix, suffix) => (
+  const inputRow = (label, key, prefix, suffix, step) => (
     <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.55rem' }}>
       <label style={{ fontSize: '0.78rem', color: '#444', width: '185px', flexShrink: 0 }}>{label}</label>
       <div style={{ display: 'flex', alignItems: 'center', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', flex: 1 }}>
         {prefix && <span style={{ padding: '0.3rem 0.5rem', background: '#e9ecef', fontSize: '0.8rem', color: '#666' }}>{prefix}</span>}
         <input
           type="number"
+          step={step}
           value={inp[key]}
           onChange={e => set(key, e.target.value)}
           style={{ border: 'none', background: 'transparent', padding: '0.3rem 0.5rem', width: '100%', fontSize: '0.85rem', outline: 'none', color: C.text }}
@@ -131,6 +136,7 @@ export default function ProFormaCalc({ inp: inpProp, setInp: setInpProp }) {
                   <input
                     type="number"
                     min={0}
+                    step={100}
                     value={inp[rentKey]}
                     onChange={e => set(rentKey, e.target.value)}
                     style={{ border: 'none', background: 'transparent', padding: '0.28rem 0.35rem', width: '100%', fontSize: '0.82rem', outline: 'none', color: C.text }}
@@ -152,11 +158,42 @@ export default function ProFormaCalc({ inp: inpProp, setInp: setInpProp }) {
               { label: 'Building GSF (pro forma)', key: 'buildingGsf', prefix: '', suffix: 'sf' },
               { label: 'Stories', key: 'stories', prefix: '', suffix: '' },
               { label: 'Parking spaces', key: 'parking', prefix: '', suffix: '' },
-            ].map(({ label, key, prefix, suffix }) => inputRow(label, key, prefix, suffix))}
+            ].map(({ label, key, prefix, suffix }) => inputRow(label, key, prefix, suffix, undefined))}
           </div>
 
           <p style={{ fontSize: '0.72rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Other inputs</p>
-          {fields.map(({ label, key, prefix, suffix }) => inputRow(label, key, prefix, suffix))}
+          {fields.map(field => {
+            const { label, key, prefix, suffix, step, termOptions } = field
+            if (termOptions) {
+              const ty = CONVENTIONAL_LOAN_TERMS.includes(Number(inp[key])) ? Number(inp[key]) : 30
+              return (
+                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.55rem' }}>
+                  <label style={{ fontSize: '0.78rem', color: '#444', width: '185px', flexShrink: 0 }}>{label}</label>
+                  <div style={{ display: 'flex', alignItems: 'center', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', flex: 1 }}>
+                    <select
+                      value={ty}
+                      onChange={e => set(key, e.target.value)}
+                      style={{
+                        border: 'none',
+                        background: 'white',
+                        padding: '0.3rem 0.5rem',
+                        width: '100%',
+                        fontSize: '0.85rem',
+                        outline: 'none',
+                        color: C.text,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {termOptions.map(y => (
+                        <option key={y} value={y}>{y} years</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )
+            }
+            return inputRow(label, key, prefix, suffix, step)
+          })}
           <p style={{ margin: '0.35rem 0 0', fontSize: '0.72rem', color: C.muted, paddingLeft: '0.15rem' }}>
             Total project cost (land + construction and soft): <strong style={{ color: C.navy }}>{fmtUSD(totalProjectCost)}</strong>
           </p>

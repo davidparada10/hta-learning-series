@@ -1,7 +1,15 @@
 import { C } from '../data/courseData'
 
-const fmtMoney = n =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+/** Excel-style Accounting: $ with parentheses for negatives */
+const fmtAccounting = n => {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return '—'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    currencySign: 'accounting',
+    maximumFractionDigits: 0,
+  }).format(n)
+}
 const fmtNum = n => (typeof n === 'number' && Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—')
 
 const th = {
@@ -21,7 +29,8 @@ const td = {
   verticalAlign: 'middle',
 }
 const tdR = { ...td, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
-const tdBlueR = { ...tdR, color: C.blue, fontWeight: 600 }
+const tdAcct = { ...td, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }
+const tdAcctBlue = { ...tdAcct, color: C.blue, fontWeight: 600 }
 
 const inpMoney = {
   border: `1px solid ${C.border}`,
@@ -29,12 +38,20 @@ const inpMoney = {
   padding: '0.22rem 0.35rem',
   fontSize: '0.78rem',
   width: '100%',
-  maxWidth: '96px',
+  minWidth: '72px',
+  maxWidth: '110px',
   textAlign: 'right',
   fontVariantNumeric: 'tabular-nums',
   color: C.blue,
   fontWeight: 600,
   background: 'white',
+}
+
+const moneyInpWrap = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.15rem',
 }
 
 function pctOf(n, d) {
@@ -45,6 +62,13 @@ function pctOf(n, d) {
 function divSafe(n, d) {
   if (!d || d <= 0) return null
   return n / d
+}
+
+/** Treat blank inputs as 0 for math; keeps '' in state for empty fields */
+function lineMoney(v) {
+  if (v === '' || v === null || v === undefined) return 0
+  const n = typeof v === 'number' ? v : parseFloat(String(v))
+  return Number.isFinite(n) ? n : 0
 }
 
 function EditableRow({
@@ -58,13 +82,19 @@ function EditableRow({
       <td style={tdR}>{pct != null ? `${fmtNum(pct)}%` : '—'}</td>
       <td style={tdR}>{psf != null ? fmtNum(psf) : '—'}</td>
       <td style={tdR}>{punit != null ? fmtNum(punit) : '—'}</td>
-      <td style={tdBlueR}>
-        <input type="number" min={0} step={100} value={budget ?? ''} onChange={e => onBudget(e.target.value)} style={inpMoney} />
+      <td style={tdAcctBlue}>
+        <span style={moneyInpWrap}>
+          <span style={{ fontSize: '0.78rem', color: '#555', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>$</span>
+          <input type="number" min={0} step={100} value={budget ?? ''} onChange={e => onBudget(e.target.value)} style={inpMoney} aria-label="Budget" />
+        </span>
       </td>
-      <td style={tdBlueR}>
-        <input type="number" min={0} step={100} value={actual ?? ''} onChange={e => onActual(e.target.value)} style={inpMoney} />
+      <td style={tdAcctBlue}>
+        <span style={moneyInpWrap}>
+          <span style={{ fontSize: '0.78rem', color: '#555', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>$</span>
+          <input type="number" min={0} step={100} value={actual ?? ''} onChange={e => onActual(e.target.value)} style={inpMoney} aria-label="Actual" />
+        </span>
       </td>
-      <td style={{ ...tdR, color: delta > 0 ? C.green : delta < 0 ? C.red : C.muted, fontWeight: 600 }}>{delta != null ? fmtMoney(delta) : '—'}</td>
+      <td style={{ ...tdAcct, color: delta > 0 ? C.green : delta < 0 ? C.red : C.muted, fontWeight: 600 }}>{delta != null ? fmtAccounting(delta) : '—'}</td>
     </tr>
   )
 }
@@ -76,9 +106,9 @@ function SubRow({ label, pct, psf, punit, budget, actual, delta, strong }) {
       <td style={{ ...tdR, borderBottom: `2px solid ${C.border}` }}>{pct != null ? `${fmtNum(pct)}%` : '—'}</td>
       <td style={{ ...tdR, borderBottom: `2px solid ${C.border}` }}>{psf != null ? fmtNum(psf) : '—'}</td>
       <td style={{ ...tdR, borderBottom: `2px solid ${C.border}` }}>{punit != null ? fmtNum(punit) : '—'}</td>
-      <td style={{ ...tdBlueR, borderBottom: `2px solid ${C.border}` }}>{fmtMoney(budget)}</td>
-      <td style={{ ...tdBlueR, borderBottom: `2px solid ${C.border}` }}>{fmtMoney(actual)}</td>
-      <td style={{ ...tdR, borderBottom: `2px solid ${C.border}`, color: delta > 0 ? C.green : delta < 0 ? C.red : C.muted }}>{fmtMoney(delta)}</td>
+      <td style={{ ...tdAcctBlue, borderBottom: `2px solid ${C.border}` }}>{fmtAccounting(budget)}</td>
+      <td style={{ ...tdAcctBlue, borderBottom: `2px solid ${C.border}` }}>{fmtAccounting(actual)}</td>
+      <td style={{ ...tdAcct, borderBottom: `2px solid ${C.border}`, color: delta > 0 ? C.green : delta < 0 ? C.red : C.muted }}>{fmtAccounting(delta)}</td>
     </tr>
   )
 }
@@ -127,7 +157,7 @@ export default function SoftCostBudget({
   feeRows,
   setFeeRows,
 }) {
-  const grandDen = softRows.reduce((s, r) => s + (r.budget || 0), 0) + feeRows.reduce((s, r) => s + (r.budget || 0), 0)
+  const grandDen = softRows.reduce((s, r) => s + lineMoney(r.budget), 0) + feeRows.reduce((s, r) => s + lineMoney(r.budget), 0)
 
   const rowDerived = (budget) => ({
     pct: pctOf(budget, grandDen),
@@ -135,8 +165,8 @@ export default function SoftCostBudget({
     punit: divSafe(budget, proformaUnits),
   })
 
-  const sumBudget = rows => rows.reduce((s, r) => s + (r.budget || 0), 0)
-  const sumActual = rows => rows.reduce((s, r) => s + (r.actual || 0), 0)
+  const sumBudget = rows => rows.reduce((s, r) => s + lineMoney(r.budget), 0)
+  const sumActual = rows => rows.reduce((s, r) => s + lineMoney(r.actual), 0)
 
   const subSoftB = sumBudget(softRows)
   const subSoftA = sumActual(softRows)
@@ -146,26 +176,39 @@ export default function SoftCostBudget({
   const grandA = subSoftA + subFeeA
 
   const setActual = (k, v) => {
-    const n = parseFloat(v)
-    setActualMeta(m => ({ ...m, [k]: Number.isFinite(n) ? n : 0 }))
+    const t = String(v).trim()
+    if (t === '') {
+      setActualMeta(m => ({ ...m, [k]: '' }))
+      return
+    }
+    const n = parseFloat(t)
+    setActualMeta(m => ({ ...m, [k]: Number.isFinite(n) ? n : '' }))
   }
 
   const updateSoft = (i, field, raw) => {
-    const n = parseFloat(raw)
-    const v = Number.isFinite(n) ? n : 0
+    const t = String(raw).trim()
     setSoftRows(rows => {
       const next = [...rows]
-      next[i] = { ...next[i], [field]: v }
+      if (t === '') {
+        next[i] = { ...next[i], [field]: '' }
+        return next
+      }
+      const n = parseFloat(t)
+      next[i] = { ...next[i], [field]: Number.isFinite(n) ? n : '' }
       return next
     })
   }
 
   const updateFee = (i, field, raw) => {
-    const n = parseFloat(raw)
-    const v = Number.isFinite(n) ? n : 0
+    const t = String(raw).trim()
     setFeeRows(rows => {
       const next = [...rows]
-      next[i] = { ...next[i], [field]: v }
+      if (t === '') {
+        next[i] = { ...next[i], [field]: '' }
+        return next
+      }
+      const n = parseFloat(t)
+      next[i] = { ...next[i], [field]: Number.isFinite(n) ? n : '' }
       return next
     })
   }
@@ -215,28 +258,28 @@ export default function SoftCostBudget({
                 <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}>Sq. Ft.</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{typeof proformaSf === 'number' ? proformaSf.toLocaleString() : '—'}</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
-                  <input type="number" min={0} step={1} value={actualMeta.sqft || ''} onChange={e => setActual('sqft', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                  <input type="number" min={0} step={1} value={actualMeta.sqft === '' || actualMeta.sqft == null ? '' : actualMeta.sqft} onChange={e => setActual('sqft', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}># of Units</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{typeof proformaUnits === 'number' ? proformaUnits.toLocaleString() : '—'}</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
-                  <input type="number" min={0} step={1} value={actualMeta.units || ''} onChange={e => setActual('units', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                  <input type="number" min={0} step={1} value={actualMeta.units === '' || actualMeta.units == null ? '' : actualMeta.units} onChange={e => setActual('units', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}># of Stories</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{proformaStories}</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
-                  <input type="number" min={0} step={1} value={actualMeta.stories || ''} onChange={e => setActual('stories', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                  <input type="number" min={0} step={1} value={actualMeta.stories === '' || actualMeta.stories == null ? '' : actualMeta.stories} onChange={e => setActual('stories', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: '0.2rem 0.75rem 0.2rem 0', color: '#555' }}>Parking</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>{proformaParking}</td>
                 <td style={{ padding: '0.2rem 0.5rem', textAlign: 'right' }}>
-                  <input type="number" min={0} step={1} value={actualMeta.parking || ''} onChange={e => setActual('parking', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
+                  <input type="number" min={0} step={1} value={actualMeta.parking === '' || actualMeta.parking == null ? '' : actualMeta.parking} onChange={e => setActual('parking', e.target.value)} style={{ ...metaInp, color: C.blue, fontWeight: 600 }} />
                 </td>
               </tr>
             </tbody>
@@ -251,9 +294,9 @@ export default function SoftCostBudget({
         {constructionSoftCost > 0 && (
           <p style={{ margin: '0 1rem 0.65rem', fontSize: '0.75rem', padding: '0.55rem 0.75rem', background: '#f0f7ff', border: `1px solid ${C.border}`, borderRadius: '8px', color: '#333' }}>
             <strong style={{ color: C.navy }}>vs. pro forma C&amp;S line:</strong>{' '}
-            Soft + fees (budget total) {fmtMoney(grandB)} is{' '}
+            Soft + fees (budget total) {fmtAccounting(grandB)} is{' '}
             {pctOfCs != null ? (
-              <><strong>{fmtNum(pctOfCs)}%</strong> of Construction &amp; soft costs (excl. land) {fmtMoney(constructionSoftCost)}.</>
+              <><strong>{fmtNum(pctOfCs)}%</strong> of Construction &amp; soft costs (excl. land) {fmtAccounting(constructionSoftCost)}.</>
             ) : (
               '—'
             )}
@@ -270,9 +313,9 @@ export default function SoftCostBudget({
                 <th style={{ ...th, textAlign: 'right' }}>% total</th>
                 <th style={{ ...th, textAlign: 'right' }}>$/SF</th>
                 <th style={{ ...th, textAlign: 'right' }}>$/unit</th>
-                <th style={{ ...th, textAlign: 'right', color: C.blue }}>Budget (8/6)</th>
-                <th style={{ ...th, textAlign: 'right', color: C.blue }}>Actual</th>
-                <th style={{ ...th, textAlign: 'right' }}>Delta</th>
+                <th style={{ ...th, textAlign: 'center', color: C.blue }}>Budget</th>
+                <th style={{ ...th, textAlign: 'center', color: C.blue }}>Actual</th>
+                <th style={{ ...th, textAlign: 'center' }}>Delta</th>
               </tr>
             </thead>
             <tbody>
@@ -282,7 +325,8 @@ export default function SoftCostBudget({
                 </td>
               </tr>
               {softRows.map((row, i) => {
-                const d = rowDerived(row.budget)
+                const b = lineMoney(row.budget)
+                const d = rowDerived(b)
                 return (
                   <EditableRow
                     key={i}
@@ -293,7 +337,7 @@ export default function SoftCostBudget({
                     punit={d.punit}
                     budget={row.budget}
                     actual={row.actual}
-                    delta={row.budget - row.actual}
+                    delta={b - lineMoney(row.actual)}
                     alt={i % 2 === 1}
                     onBudget={v => updateSoft(i, 'budget', v)}
                     onActual={v => updateSoft(i, 'actual', v)}
@@ -317,7 +361,8 @@ export default function SoftCostBudget({
                 </td>
               </tr>
               {feeRows.map((row, i) => {
-                const d = rowDerived(row.budget)
+                const b = lineMoney(row.budget)
+                const d = rowDerived(b)
                 return (
                   <EditableRow
                     key={i}
@@ -328,7 +373,7 @@ export default function SoftCostBudget({
                     punit={d.punit}
                     budget={row.budget}
                     actual={row.actual}
-                    delta={row.budget - row.actual}
+                    delta={b - lineMoney(row.actual)}
                     alt={i % 2 === 1}
                     onBudget={v => updateFee(i, 'budget', v)}
                     onActual={v => updateFee(i, 'actual', v)}
