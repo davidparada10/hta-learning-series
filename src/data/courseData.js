@@ -99,17 +99,83 @@ export const DOMAINS = [
           },
         ],
       },
-      { week: 2,  title: 'Land Acquisition & Site Analysis',          status: 'upcoming' },
-      { week: 3,  title: 'Development Feasibility & Entitlement',      status: 'upcoming' },
-      { week: 4,  title: 'Project Financing & Capital Stack',           status: 'upcoming' },
-      { week: 5,  title: 'Design & Predevelopment',                     status: 'upcoming' },
-      { week: 6,  title: 'Construction Management Basics',              status: 'upcoming' },
-      { week: 7,  title: 'Lease-Up & Stabilization',                    status: 'upcoming' },
-      { week: 8,  title: 'Disposition & Exit Strategies',               status: 'upcoming' },
-      { week: 9,  title: 'Affordable & Mixed-Use Development',          status: 'upcoming' },
-      { week: 10, title: 'SoCal Market Deep Dive',                      status: 'upcoming' },
-      { week: 11, title: 'Case Study: Full Deal Underwrite',            status: 'upcoming' },
-      { week: 12, title: 'Final Review & Assessment',                   status: 'upcoming' },
+      {
+        week: 2, title: 'Cap Rates & Valuation', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Study the income approach vs. the comp approach to valuation — understand when each method is appropriate. Map SoCal cap rates by asset class using current CBRE or Marcus & Millichap data. Practice: given a stabilized NOI, derive the asset value at market cap rates for industrial, multifamily, and office.' },
+          { heading: 'Milestone', body: 'Can read a cap rate report, apply it to a real asset, and explain what drives cap rate compression or expansion in a given market.' },
+        ],
+      },
+      {
+        week: 3, title: 'Land Use & Zoning', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read a real zoning ordinance — use the Long Beach municipal code. Identify FAR, setbacks, height limits, and permitted use types on a sample parcel. Map HTA project sites against their zoning designations and flag any non-conforming conditions.' },
+          { heading: 'Milestone', body: 'Can open a zoning code, identify what is buildable on a given parcel, and flag any variances or entitlement risk before a site goes under contract.' },
+        ],
+      },
+      {
+        week: 4, title: 'Entitlement Process', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Map the CUP (Conditional Use Permit) and design review process step-by-step in Long Beach. Research a recent LA-area entitlement case study — timeline, costs, and outcome. If possible, do a 30-minute call with a local land use attorney to understand the pressure points.' },
+          { heading: 'Milestone', body: 'Can describe the full entitlement path for a typical HTA project type, estimate timeline and risk, and identify which step is most likely to cause delay.' },
+        ],
+      },
+      {
+        week: 5, title: 'Development Budget', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Build a full development budget from scratch: hard costs, soft costs, carry costs, and contingency. Benchmark HTA project costs vs. RSMeans unit costs for your primary building types. Learn how contingency percentage shifts by project phase — predevelopment vs. construction vs. closeout.' },
+          { heading: 'Milestone', body: 'Can structure a complete development budget with appropriate line items, contingency, and carry — and explain why each cost category exists.' },
+        ],
+      },
+      {
+        week: 6, title: 'Capital Stack', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Map the full capital stack: senior debt (65–70%), mezzanine or preferred equity (10–15%), and common equity (GP + LP). Read a real term sheet from the Infinity deal files. Calculate waterfall distributions on a simple JV model — pref return first, then promote splits.' },
+          { heading: 'Milestone', body: 'Can structure a basic capital stack, explain the risk/return at each layer, and calculate a simple JV waterfall distribution.' },
+        ],
+      },
+      {
+        week: 7, title: 'CA Land Use Law', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read the SB 684 summary (ADU and small lot subdivision by-right). Study AB 2097 — the parking near transit elimination law and how it affects project feasibility. Identify which state statutes apply to Infinity deal types and how they change your entitlement assumptions.' },
+          { heading: 'Milestone', body: 'Can identify which CA land use laws apply to a given site and explain how each one affects project feasibility, timeline, or cost.' },
+        ],
+      },
+      {
+        week: 8, title: 'Affordable Housing Finance', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Learn LIHTC basics: the difference between 4% and 9% tax credits, CDLAC allocation, and how credits convert to equity. Read one HCD-funded project pro forma end-to-end. Identify specifically how the public subsidy changes the capital stack vs. a market-rate deal.' },
+          { heading: 'Milestone', body: 'Can read an affordable housing pro forma, identify the subsidy sources, and explain how they change project economics vs. market-rate development.' },
+        ],
+      },
+      {
+        week: 9, title: 'Value Engineering', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Pull a change log from a real HTA project and categorize the changes: design errors, owner changes, field conditions, VE. Practice: review a set of drawings and identify 3 value engineering opportunities that preserve function but reduce cost. Meet with Randy or Roy to discuss real field cost decisions made on recent projects.' },
+          { heading: 'Milestone', body: 'Can evaluate a development deal end-to-end — from pro forma to budget to capital stack — and identify where value engineering can close a gap.' },
+        ],
+      },
+      {
+        week: 10, title: 'Sensitivity & Stress Testing', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Build a sensitivity table in Excel: rows = NOI (±10–20%), columns = cap rate (±50–100 bps), cells = implied value. Model a full downside scenario: vacancy +10%, construction cost +15%, timeline +6 months. Identify the deal-killer thresholds — the exact input levels where the deal fails LTV, DSCR, or YOC tests.' },
+          { heading: 'Milestone', body: 'Can stress-test any development deal, identify the most sensitive inputs, and clearly articulate the break-even assumptions to an investment committee.' },
+        ],
+      },
+      {
+        week: 11, title: 'Full Deal Underwriting', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Select a real or hypothetical SoCal development site. Build a complete pro forma with development budget, capital stack, and JV waterfall. Prepare a 1-page investment summary: site, program, return metrics, key risks, and go/no-go recommendation.' },
+          { heading: 'Milestone', body: 'Can underwrite a complete development deal independently and present the key assumptions, return metrics, and risks in a concise investment summary.' },
+        ],
+      },
+      {
+        week: 12, title: 'Capstone — Deal Memo', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Write a 2-page development deal memo for an Infinity opportunity. Present to Peter or Tom: walk through your assumptions, sensitivity analysis, risks, and return expectations. Debrief: identify what you would do differently in round 2.' },
+          { heading: 'Milestone', body: 'Can underwrite and present a real development deal to HTA investment committee with a clear recommendation and supporting analysis.' },
+        ],
+      },
     ],
   },
   {
@@ -120,18 +186,90 @@ export const DOMAINS = [
     icon: '🔨',
     description: 'Project delivery, GC/sub relationships, pay applications, and field operations',
     weeks: [
-      { week: 1,  title: 'Project Delivery Methods',              status: 'upcoming' },
-      { week: 2,  title: 'Estimating & Bid Process',              status: 'upcoming' },
-      { week: 3,  title: 'Contracts: GC & Subcontractor',         status: 'upcoming' },
-      { week: 4,  title: 'Scheduling & Critical Path',            status: 'upcoming' },
-      { week: 5,  title: 'Pay Applications & Lien Waivers',       status: 'upcoming' },
-      { week: 6,  title: 'RFIs, Submittals & Change Orders',      status: 'upcoming' },
-      { week: 7,  title: 'Site Safety & Quality Control',         status: 'upcoming' },
-      { week: 8,  title: 'MEP Coordination',                      status: 'upcoming' },
-      { week: 9,  title: 'Closeout & Punch List',                 status: 'upcoming' },
-      { week: 10, title: 'Cost Control & Reporting',              status: 'upcoming' },
-      { week: 11, title: 'SoCal Construction Market',             status: 'upcoming' },
-      { week: 12, title: 'Final Review & Assessment',             status: 'upcoming' },
+      {
+        week: 1, title: 'Project Delivery Methods', status: 'active',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Compare the four primary delivery methods: GC lump sum, CM-at-risk, design-build, and GMAX. Map which HTA projects used which method and why — what drove that decision for each project type. Read the AGC Guide to Project Delivery for a concise industry overview.' },
+          { heading: 'Milestone', body: 'Can explain the tradeoffs between delivery methods and recommend the right approach for a given project type, risk profile, and owner relationship.' },
+        ],
+      },
+      {
+        week: 2, title: 'Drawings & CSI Divisions', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read a full drawing set from one HTA project: civil, architectural, structural, and MEP sets. Map CSI MasterFormat divisions 1–16 to real scope items on that project. Find 3 scope gaps between the drawings and the spec — places where the scope is ambiguous or undocumented.' },
+          { heading: 'Milestone', body: 'Can read a full drawing set, organize scope by CSI division, and identify where drawings and specs are inconsistent.' },
+        ],
+      },
+      {
+        week: 3, title: 'Estimating Fundamentals', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Build a quantity takeoff for one CSI division — concrete, framing, or MEP rough-in. Look up unit costs in RSMeans for each item you took off. Calculate the total installed cost including material, labor, and labor burden.' },
+          { heading: 'Milestone', body: 'Can perform a basic quantity takeoff and build a cost estimate from unit prices, including labor burden.' },
+        ],
+      },
+      {
+        week: 4, title: 'Bid Leveling', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Pull 3 subcontractor bids from a real HTA project for the same scope. Build a bid comparison matrix in Excel: scope, base bid, alternates, exclusions, unit prices. Identify every scope gap, exclusion, and alternate — these are where the real bid leveling happens.' },
+          { heading: 'Milestone', body: 'Can level multiple sub bids, identify scope gaps and exclusions, and produce a recommendation with risk notes.' },
+        ],
+      },
+      {
+        week: 5, title: 'CPM Scheduling', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read a full project schedule from a real HTA job — in P6, MS Project, or Excel. Identify the critical path and calculate float for at least 3 activities. Practice: if framing slips 2 weeks, walk through the cascade — what else moves, and what is the owner impact?' },
+          { heading: 'Milestone', body: 'Can read a CPM schedule, identify the critical path, and explain the downstream impact of a specific delay to scope or trade.' },
+        ],
+      },
+      {
+        week: 6, title: 'RFIs & Submittals', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Track 10 open RFIs on a live HTA project: what\'s the question, who needs to answer, what\'s the delay risk? Map the submittal log — which trades are late, who is waiting on whom, and what is the schedule impact. Write one original RFI based on a real drawing conflict you find yourself.' },
+          { heading: 'Milestone', body: 'Can manage the RFI and submittal logs, identify critical path items, and escalate issues before they cause delay.' },
+        ],
+      },
+      {
+        week: 7, title: 'Subcontract Management', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Review the HTA standard subcontract template clause by clause. Identify 3 clauses that carry the most risk for the subcontractor. Draft a scope exhibit for a concrete subcontract — what\'s in scope, what\'s excluded, what are the interfaces.' },
+          { heading: 'Milestone', body: 'Can read a subcontract, identify the high-risk clauses, and draft a clear scope exhibit that reduces ambiguity.' },
+        ],
+      },
+      {
+        week: 8, title: 'Change Order Management', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Pull 5 change orders from a real HTA project. Classify each one: owner-driven change, design error, unforeseen field condition, or scope gap. For each CO, calculate the schedule impact in addition to the cost — what did it do to the critical path?' },
+          { heading: 'Milestone', body: 'Can classify, price, and negotiate a change order — and explain the schedule impact alongside the cost.' },
+        ],
+      },
+      {
+        week: 9, title: 'Cost-to-Complete Forecasting', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Build a cost-to-complete (CTC) report for one HTA project using real budget and actual data. Compare budget vs. actual by CSI division. Flag any division trending over by more than 5% — develop a narrative explaining why and what the corrective action is.' },
+          { heading: 'Milestone', body: 'Can build a cost-to-complete report, explain variances by division, and present a forecast with corrective action plan.' },
+        ],
+      },
+      {
+        week: 10, title: 'Field Operations', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Spend a day on-site with Joe or Geo on a live HTA project. Document 5 real coordination issues you observe — trade conflicts, sequencing problems, access issues, safety concerns. Propose a specific solution for each issue observed.' },
+          { heading: 'Milestone', body: 'Can observe field operations, identify coordination issues, and communicate solutions clearly to the field team and subcontractors.' },
+        ],
+      },
+      {
+        week: 11, title: 'Owner/GC Reporting', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Draft a complete monthly owner report for one HTA project. Include all four sections: schedule status (critical path, percent complete, look-ahead), cost status (budget vs. actual, pending COs), open issues (RFIs, submittals, decisions needed), and risk log.' },
+          { heading: 'Milestone', body: 'Can produce a clear, complete monthly owner report that proactively surfaces risks and gives the owner everything needed to make decisions.' },
+        ],
+      },
+      {
+        week: 12, title: 'Capstone — Bid Package', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Assemble a complete bid package for a hypothetical $5M commercial project. Include: drawing set (real or schematic), scope narrative by CSI division, bid leveling matrix, CPM schedule, and subcontract form. Present to HTA leadership as a mock GC proposal.' },
+          { heading: 'Milestone', body: 'Can run a complete bid process and produce all the deliverables a GC needs to win and successfully execute a commercial construction project.' },
+        ],
+      },
     ],
   },
   {
@@ -142,18 +280,90 @@ export const DOMAINS = [
     icon: '⚖️',
     description: 'AIA contracts, lien rights, dispute resolution, and risk allocation',
     weeks: [
-      { week: 1,  title: 'AIA Contract Fundamentals',             status: 'upcoming' },
-      { week: 2,  title: 'Owner-Contractor Agreements',           status: 'upcoming' },
-      { week: 3,  title: 'Subcontractor Agreements',              status: 'upcoming' },
-      { week: 4,  title: 'Lien Law in California',               status: 'upcoming' },
-      { week: 5,  title: 'Insurance & Bonding',                   status: 'upcoming' },
-      { week: 6,  title: 'Dispute Resolution & Claims',           status: 'upcoming' },
-      { week: 7,  title: 'Design Professional Agreements',        status: 'upcoming' },
-      { week: 8,  title: 'Public Works & Prevailing Wage',        status: 'upcoming' },
-      { week: 9,  title: 'Entitlement & Land Use Law',           status: 'upcoming' },
-      { week: 10, title: 'Due Diligence & Purchase Contracts',   status: 'upcoming' },
-      { week: 11, title: 'JV & Partnership Agreements',          status: 'upcoming' },
-      { week: 12, title: 'Final Review & Assessment',             status: 'upcoming' },
+      {
+        week: 1, title: 'AIA Contract Family', status: 'active',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read AIA A201 General Conditions — skim the full document for structure, then deep-read the key articles: Article 3 (Contractor), Article 7 (Changes), Article 14 (Termination). Map which sections primarily protect the GC vs. the owner. Identify which AIA forms HTA currently uses and in what project contexts.' },
+          { heading: 'Milestone', body: 'Can read a construction contract and immediately identify the clauses that carry the most risk — for HTA as GC and for the owner.' },
+        ],
+      },
+      {
+        week: 2, title: 'Indemnity & Insurance', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Find the indemnity clause in one HTA owner contract. Classify it: broad form (indemnify even for owner negligence), intermediate form, or limited form (each party responsible for own negligence only). Pull a certificate of insurance from that same project and verify that all coverages match the contract requirements.' },
+          { heading: 'Milestone', body: 'Can read an indemnity clause, classify its scope, and verify that the insurance certificate actually satisfies the contractual requirements.' },
+        ],
+      },
+      {
+        week: 3, title: 'CA Lien Law', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Learn the California preliminary notice deadline: 20 days from first furnishing of labor or materials. Map the full mechanic\'s lien filing timeline in CA — preliminary notice, lien filing, enforcement deadlines. Verify that HTA\'s current preliminary notice process is compliant for both GC and sub work.' },
+          { heading: 'Milestone', body: 'Can explain California\'s lien law timeline, confirm whether HTA\'s process is compliant, and explain what happens if a deadline is missed.' },
+        ],
+      },
+      {
+        week: 4, title: 'Subcontract Flow-Down', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Place one HTA owner contract and the HTA standard subcontract side by side. Identify which owner-imposed obligations flow down to the subcontractors. Flag any gaps where HTA is bound to the owner by a term that has not been passed down to the sub performing that scope.' },
+          { heading: 'Milestone', body: 'Can identify flow-down gaps in HTA\'s subcontract structure — places where HTA holds risk from the owner that has not been allocated to the performing sub.' },
+        ],
+      },
+      {
+        week: 5, title: 'Scope & Change Clauses', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read Article 7 of AIA A201 (Changes in the Work) in full. Find the notice requirements for claiming additional cost or time — what triggers them, what the deadlines are, and what happens if notice is late. Draft a sample written notice letter based on a real HTA change order situation.' },
+          { heading: 'Milestone', body: 'Can identify when a notice obligation is triggered, draft a proper notice letter, and explain the consequences of failing to provide timely notice.' },
+        ],
+      },
+      {
+        week: 6, title: 'Delay & Disruption', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Learn the distinction between excusable delay (no damages, time extension only), compensable delay (time + money), and non-excusable delay (contractor\'s fault, liable). Find the force majeure clause in an HTA contract. Classify 3 real delays from HTA project history by type: which category does each fall into, and what was HTA\'s remedy?' },
+          { heading: 'Milestone', body: 'Can classify any project delay by type, explain HTA\'s rights and obligations in each case, and advise on the appropriate contractual response.' },
+        ],
+      },
+      {
+        week: 7, title: 'Dispute Resolution', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Compare the three primary dispute resolution paths: mediation (non-binding, fast, cheap), AAA construction arbitration (binding, faster than litigation), and litigation (court, public record, expensive). Read the AAA Construction Arbitration rules summary. Identify which HTA contracts include mandatory arbitration clauses and which are silent.' },
+          { heading: 'Milestone', body: 'Can advise on the right dispute resolution path for a given HTA claim — considering cost, speed, enforceability, and relationship impact.' },
+        ],
+      },
+      {
+        week: 8, title: 'Contract Redlining', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Take one HTA owner contract and redline it from the GC\'s perspective. Focus on the highest-impact clauses: indemnity (narrow it), intellectual property (retain construction documents rights), limitation of liability (add a cap), and consequential damages (mutual waiver). Get feedback from Peter or outside counsel on your redline.' },
+          { heading: 'Milestone', body: 'Can redline a construction contract from the GC\'s perspective and justify each markup with a clear business or legal rationale.' },
+        ],
+      },
+      {
+        week: 9, title: 'ConsensusDocs vs AIA', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read ConsensusDocs 200 — the GC/subcontractor-friendly alternative to AIA A101. Compare 5 key structural differences from AIA: risk allocation, change order procedures, dispute resolution, indemnity language, and owner\'s right to terminate. Identify when you would recommend ConsensusDocs to an owner over AIA — and when you would not.' },
+          { heading: 'Milestone', body: 'Can explain the key differences between AIA and ConsensusDocs contract families and recommend the right form for a given owner relationship and project type.' },
+        ],
+      },
+      {
+        week: 10, title: 'Subcontractor Default', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read the termination for default clause in AIA A401 (GC-Subcontractor Agreement). Learn the required steps: written notice, cure period (typically 7 days), completion at sub\'s cost, and performance bond trigger. Draft an internal HTA standard operating procedure for handling a subcontractor default event from first notice through completion.' },
+          { heading: 'Milestone', body: 'Can manage a subcontractor default event step-by-step — providing proper notice, managing the cure period, and escalating to bond or completion contractor as required.' },
+        ],
+      },
+      {
+        week: 11, title: 'Owner Contract Strategy', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Identify HTA\'s top 3 contract risk exposures based on your review of real project contracts this quarter. Draft a contract negotiation checklist for new owner agreements — organized by clause type and priority: must-have, prefer, and acceptable-if-needed.' },
+          { heading: 'Milestone', body: 'Can advise HTA on contract negotiation strategy for a new owner — knowing which clauses to push on hard, which to accept, and which are deal-breakers.' },
+        ],
+      },
+      {
+        week: 12, title: 'Capstone — Contract Playbook', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Build a 1-page HTA contract risk cheat sheet: top 10 clauses to negotiate, what to push for, and what to accept. Include: indemnity, insurance, liquidated damages, consequential damages waiver, change order notice, termination for convenience. Present to Randy or Peter as a field-ready reference document.' },
+          { heading: 'Milestone', body: 'HTA has a contract playbook you built — a practical, field-ready reference that helps any HTA project manager navigate owner contract negotiations.' },
+        ],
+      },
     ],
   },
   {
@@ -164,18 +374,90 @@ export const DOMAINS = [
     icon: '📈',
     description: 'Market analysis, investment underwriting, financing, and portfolio strategy',
     weeks: [
-      { week: 1,  title: 'SoCal Market Overview',                status: 'upcoming' },
-      { week: 2,  title: 'Reading Market Reports (CBRE, JLL)',   status: 'upcoming' },
-      { week: 3,  title: 'Investment Return Metrics',            status: 'upcoming' },
-      { week: 4,  title: 'Debt Markets & Financing',             status: 'upcoming' },
-      { week: 5,  title: 'Industrial Asset Class Deep Dive',     status: 'upcoming' },
-      { week: 6,  title: 'Multifamily Investment',               status: 'upcoming' },
-      { week: 7,  title: 'Retail & Mixed-Use Analysis',          status: 'upcoming' },
-      { week: 8,  title: 'Office Market Dynamics',               status: 'upcoming' },
-      { week: 9,  title: 'Deal Sourcing & Screening',            status: 'upcoming' },
-      { week: 10, title: 'Portfolio Strategy',                   status: 'upcoming' },
-      { week: 11, title: 'Investor Reporting & IRR',             status: 'upcoming' },
-      { week: 12, title: 'Final Review & Assessment',            status: 'upcoming' },
+      {
+        week: 1, title: 'Cap Rates & NOI Review', status: 'active',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Solidify cap rate mechanics — use the interactive lesson and pro forma calculator. Pull 3 recent SoCal commercial sales comps from CoStar or LoopNet. For each sale, find or estimate the NOI and calculate the implied cap rate. Compare your implied cap rates to the CBRE benchmark ranges.' },
+          { heading: 'Milestone', body: 'Can look at any SoCal sale comp, derive the implied cap rate, and benchmark it against current market ranges by asset class.' },
+        ],
+      },
+      {
+        week: 2, title: 'Asset Classes', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Read the NAIOP primer on the four major commercial asset classes: industrial, multifamily, retail, and office. Map the primary demand drivers for each asset class in the LA Basin — what makes each one grow or contract? Rank the four asset classes by risk/return in the current SoCal environment and justify your ranking.' },
+          { heading: 'Milestone', body: 'Can describe the demand drivers, risk factors, and investor base for each major CRE asset class and explain how they compare in today\'s SoCal market.' },
+        ],
+      },
+      {
+        week: 3, title: 'Comp Sales Analysis', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Find 5 sales comps for a hypothetical Long Beach industrial parcel — use CoStar, LoopNet, or public records. Adjust each comp for key differences: building size, age, clear height, dock doors, lease terms, and location. Arrive at a supportable value conclusion for your hypothetical parcel with a stated range and point estimate.' },
+          { heading: 'Milestone', body: 'Can run a comp sales analysis for a commercial parcel, make appropriate adjustments, and arrive at a defensible value conclusion.' },
+        ],
+      },
+      {
+        week: 4, title: 'DCF Modeling', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Build a 10-year DCF model in Excel for a stabilized commercial asset. Include: annual rent growth, vacancy assumptions, operating expense escalation, capital expenditure reserves, and exit cap rate. Calculate IRR and equity multiple at a range of exit cap rates (+/- 50 bps) to understand exit cap sensitivity.' },
+          { heading: 'Milestone', body: 'Can build a 10-year DCF model from scratch, calculate IRR and equity multiple, and explain how exit cap rate assumptions drive returns.' },
+        ],
+      },
+      {
+        week: 5, title: 'Debt Structuring', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Learn the three key lender metrics: LTV (loan-to-value), DSCR (debt service coverage ratio), and debt yield (NOI ÷ loan amount). Map how a lender underwrites a SoCal industrial acquisition — what inputs drive max loan size? Practice: calculate the maximum loan amount for a sample deal using all three constraints.' },
+          { heading: 'Milestone', body: 'Can underwrite the debt capacity for a CRE acquisition from the lender\'s perspective — applying LTV, DSCR, and debt yield constraints simultaneously.' },
+        ],
+      },
+      {
+        week: 6, title: 'SoCal Market Dynamics', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Pull the most current SoCal market report from CoStar, CBRE Research, or JLL. Map the key metrics for Long Beach industrial: vacancy rate, asking rent, rent growth, net absorption, and new supply under construction. Identify the top 3 market risks and top 3 tailwinds for SoCal industrial over the next 12–24 months.' },
+          { heading: 'Milestone', body: 'Can read a commercial real estate market report, extract the key metrics, and build a market narrative that supports an investment thesis.' },
+        ],
+      },
+      {
+        week: 7, title: 'Value-Add Underwriting', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Find a real value-add listing in SoCal on LoopNet or CoStar — below-market rents, deferred maintenance, or short lease term. Model the full business plan: acquisition price, renovation budget, lease-up timeline, stabilized NOI, and exit. Compare your going-in cap rate vs. the projected exit cap rate and calculate the spread.' },
+          { heading: 'Milestone', body: 'Can underwrite a value-add acquisition — modeling the business plan from purchase through stabilization and exit with IRR and equity multiple.' },
+        ],
+      },
+      {
+        week: 8, title: 'JV Structure & Waterfall', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Learn the mechanics of a real estate JV: preferred return (typically 7–9%), promote or carried interest (GP upside above pref), and GP/LP economic split. Model a simple 2-tier waterfall in Excel: return of capital + pref, then split at promote. Read a real JV term sheet — identify where the GP and LP economics diverge.' },
+          { heading: 'Milestone', body: 'Can structure a JV waterfall, model the LP and GP economics at various IRR outcomes, and explain the promote mechanics to a prospective LP.' },
+        ],
+      },
+      {
+        week: 9, title: 'Asset Management', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Build a lease expiration schedule for a hypothetical 5-property portfolio — when does each lease expire, what is the renewal risk, and what is the mark-to-market opportunity? Build a 3-year CapEx plan for the same portfolio: what needs to be spent and when? Identify 2 assets to sell vs. hold based on your analysis.' },
+          { heading: 'Milestone', body: 'Can manage an asset through its hold period — tracking leasing, capital needs, and the hold vs. sell decision at each stage.' },
+        ],
+      },
+      {
+        week: 10, title: 'Disposition Strategy', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Learn 1031 exchange mechanics: identification period (45 days), exchange period (180 days), like-kind requirement, and qualified intermediary rules. Compare three exit strategies for the same asset: outright sale, partial recapitalization, and cash-out refinance. Model after-tax proceeds for each option.' },
+          { heading: 'Milestone', body: 'Can evaluate multiple disposition strategies for a CRE asset, model the after-tax proceeds for each, and recommend the optimal exit given the investor\'s objectives.' },
+        ],
+      },
+      {
+        week: 11, title: 'Investment Memo', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Select a real SoCal deal or a well-defined hypothetical. Build a complete investment memo: market overview, asset description, investment thesis, underwriting summary (DCF, returns), capital stack, key risks and mitigants, and go/no-go recommendation. Format it for an investment committee audience.' },
+          { heading: 'Milestone', body: 'Can write a complete investment memo that gives a decision-maker everything needed to approve or reject a CRE acquisition.' },
+        ],
+      },
+      {
+        week: 12, title: 'Capstone — Infinity Deal', status: 'upcoming',
+        concepts: [
+          { heading: 'Study Tasks', body: 'Apply the full Domain 4 framework to a live Infinity Capital opportunity. Build the complete model: 10-year DCF, capital stack, JV waterfall, sensitivity table. Present to Peter with a go/no-go recommendation — walk through your market thesis, underwriting assumptions, return expectations, and top 3 risks.' },
+          { heading: 'Milestone', body: 'Can bring a fully underwritten real deal to the HTA/Infinity investment committee with a clear recommendation backed by rigorous analysis.' },
+        ],
+      },
     ],
   },
 ]
