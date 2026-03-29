@@ -1,46 +1,59 @@
 import { useState, useEffect } from 'react'
-import { DOMAINS, C } from '../data/courseData'
+import { C } from '../data/courseData'
 import LessonView from '../components/LessonView'
 import ProFormaTab from '../components/ProFormaTab'
 import CapRateExplorer from '../components/CapRateExplorer'
 import Quiz from '../components/Quiz'
 import DomainLocked from '../components/DomainLocked'
 import DomainWeek12Footer from '../components/DomainWeek12Footer'
+import AdminEditPanel from '../components/AdminEditPanel'
 import { readCompletedDomainIds, writeCompletedDomainIds, domainUnlocked } from '../lib/domainProgress'
 import { supabase } from '../lib/supabase'
 import { partnershipLineDark, builderAcademyTitleDark } from '../lib/brandStyles'
+import { getAdminMode, saveAdminMode } from '../lib/adminMode'
+import { getDomainsWithEdits } from '../lib/courseContent'
 
 export default function Course({ user, profile }) {
   const [domIdx, setDomIdx] = useState(0)
-  const [wkIdx, setWkIdx] = useState(0)
-  const [tab, setTab] = useState('lesson')
+  const [wkIdx, setWkIdx]   = useState(0)
+  const [tab, setTab]       = useState('lesson')
   const [sideOpen, setSide] = useState(true)
   const [completedDomainIds, setCompletedDomainIds] = useState(readCompletedDomainIds)
+  const [adminMode, setAdminModeState] = useState(getAdminMode)
+  const [domains, setDomains] = useState(getDomainsWithEdits)
+  const [editOpen, setEditOpen] = useState(false)
 
   useEffect(() => {
     writeCompletedDomainIds(completedDomainIds)
   }, [completedDomainIds])
 
-  const domain = DOMAINS[domIdx]
-  const week = domain.weeks[wkIdx]
+  const refreshDomains = () => setDomains(getDomainsWithEdits())
+
+  const toggleAdmin = () => {
+    const next = !adminMode
+    setAdminModeState(next)
+    saveAdminMode(next)
+    if (!next) setEditOpen(false)
+  }
+
+  const domain     = domains[domIdx]
+  const week       = domain.weeks[wkIdx]
   const hasContent = domain.id === 1 && week.week === 1
-  const unlocked = domainUnlocked(domain.id, completedDomainIds)
+  const unlocked   = adminMode || domainUnlocked(domain.id, completedDomainIds)
   const weekStatusLabel = week.status === 'active' ? 'Active' : week.status === 'upcoming' ? 'Upcoming' : week.status
 
   const tabs = hasContent
     ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'proforma', label: '📊 Pro Forma' }, { id: 'caprate', label: '🔍 Cap Rates' }, { id: 'quiz', label: '📝 Quiz' }]
     : [{ id: 'lesson', label: '📖 Lesson' }]
 
-  const switchDomain = i => { setDomIdx(i); setWkIdx(0); setTab('lesson') }
-  const switchWeek = i => { setWkIdx(i); setTab('lesson') }
+  const switchDomain = i => { setDomIdx(i); setWkIdx(0); setTab('lesson'); setEditOpen(false) }
+  const switchWeek   = i => { setWkIdx(i); setTab('lesson'); setEditOpen(false) }
 
   const markDomainComplete = id => {
     setCompletedDomainIds(prev => (prev.includes(id) ? prev : [...prev, id]))
   }
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-  }
+  const handleSignOut = async () => { await supabase.auth.signOut() }
 
   const displayName = profile?.full_name || user?.email || 'Student'
   const isAdmin = profile?.role === 'admin'
@@ -48,47 +61,54 @@ export default function Course({ user, profile }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F0F3F7' }}>
 
+      {/* ── Header ── */}
       <header style={{
         background: 'linear-gradient(165deg, #1a3555 0%, #152a45 42%, #0c1829 100%)',
-        color: 'white',
-        padding: '0.95rem 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        color: 'white', padding: '0.95rem 1.5rem',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         flexShrink: 0,
         boxShadow: '0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          <button onClick={() => setSide(s => !s)} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+          <button type="button" onClick={() => setSide(s => !s)} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
             ☰
           </button>
           <div style={{ borderLeft: '4px solid rgba(100, 155, 220, 0.55)', paddingLeft: '0.95rem', boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.12)' }}>
-            <p style={partnershipLineDark}>
-              Parada Capital LLC x HTA Construction & Development Inc
-            </p>
+            <p style={partnershipLineDark}>Parada Capital LLC x HTA Construction & Development Inc</p>
             <h1 style={builderAcademyTitleDark}>Builder Academy</h1>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ textAlign: 'right' }}>
             <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.65 }}>{displayName}</p>
             <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain {domain.id}, Week {week.week} · {weekStatusLabel}</p>
           </div>
-          {isAdmin && (
-            <a href="/admin" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.15)', padding: '0.3rem 0.75rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>
+          {/* Admin mode toggle */}
+          <button type="button" onClick={toggleAdmin} style={{
+            fontSize: '0.75rem', fontWeight: 700, padding: '0.3rem 0.85rem', borderRadius: '6px', cursor: 'pointer',
+            background: adminMode ? 'rgba(230,126,34,0.25)' : 'rgba(255,255,255,0.1)',
+            color: adminMode ? '#f0a555' : 'rgba(255,255,255,0.7)',
+            border: adminMode ? '1px solid rgba(230,126,34,0.5)' : '1px solid rgba(255,255,255,0.2)',
+            transition: 'all 0.2s',
+          }}>
+            {adminMode ? '✏️ Edit On' : '✏️ Edit'}
+          </button>
+          {(isAdmin || adminMode) && (
+            <a href="/admin" style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.12)', padding: '0.3rem 0.75rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>
               Admin ↗
             </a>
           )}
-          <button onClick={handleSignOut} style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '0.3rem 0.75rem', borderRadius: '6px', cursor: 'pointer' }}>
+          <button type="button" onClick={handleSignOut} style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '0.3rem 0.75rem', borderRadius: '6px', cursor: 'pointer' }}>
             Sign out
           </button>
         </div>
       </header>
 
+      {/* ── Domain nav ── */}
       <nav style={{ background: 'white', borderBottom: `1px solid ${C.border}`, display: 'flex', overflowX: 'auto', flexShrink: 0 }}>
-        {DOMAINS.map((d, i) => {
-          const dLocked = !domainUnlocked(d.id, completedDomainIds)
+        {domains.map((d, i) => {
+          const dLocked = !adminMode && !domainUnlocked(d.id, completedDomainIds)
           return (
             <button key={d.id} type="button" onClick={() => switchDomain(i)} style={{
               padding: '0.7rem 1.1rem', border: 'none',
@@ -105,13 +125,15 @@ export default function Course({ user, profile }) {
         })}
       </nav>
 
+      {/* ── Body ── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
+        {/* Sidebar */}
         {sideOpen && (
           <aside style={{ width: '248px', flexShrink: 0, background: 'white', borderRight: `1px solid ${C.border}`, overflowY: 'auto', padding: '0.85rem 0' }}>
             <p style={{ fontSize: '0.67rem', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 1rem', marginBottom: '0.5rem' }}>Curriculum</p>
-            {DOMAINS.map((d, di) => {
-              const dLocked = !domainUnlocked(d.id, completedDomainIds)
+            {domains.map((d, di) => {
+              const dLocked = !adminMode && !domainUnlocked(d.id, completedDomainIds)
               return (
                 <div key={d.id} style={{ marginBottom: '0.25rem', opacity: dLocked ? 0.55 : 1 }}>
                   <button type="button" onClick={() => switchDomain(di)} style={{
@@ -126,7 +148,7 @@ export default function Course({ user, profile }) {
                   {d.weeks.map((w, wi) => {
                     const active = domIdx === di && wkIdx === wi
                     return (
-                      <button key={wi} type="button" onClick={() => { setDomIdx(di); setWkIdx(wi); setTab('lesson') }} style={{
+                      <button key={wi} type="button" onClick={() => { setDomIdx(di); setWkIdx(wi); setTab('lesson'); setEditOpen(false) }} style={{
                         width: '100%', textAlign: 'left', padding: '0.45rem 0.85rem 0.45rem 1.35rem',
                         border: 'none',
                         borderLeft: active ? `3px solid ${d.color}` : '3px solid transparent',
@@ -152,27 +174,43 @@ export default function Course({ user, profile }) {
           </aside>
         )}
 
+        {/* Main */}
         <main style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <p style={{ margin: 0, fontSize: '0.74rem', color: C.muted }}>Domain {domain.id} · Week {week.week}</p>
-            <h2 style={{ margin: '0.15rem 0 0', fontSize: '1.2rem', fontWeight: 800, color: domain.color }}>{week.title}</h2>
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.74rem', color: C.muted }}>Domain {domain.id} · Week {week.week}</p>
+              <h2 style={{ margin: '0.15rem 0 0', fontSize: '1.2rem', fontWeight: 800, color: domain.color }}>{week.title}</h2>
+            </div>
+            {adminMode && (
+              <button type="button" onClick={() => setEditOpen(o => !o)} style={{
+                padding: '0.4rem 1rem', background: editOpen ? domain.color : `${domain.color}18`,
+                color: editOpen ? 'white' : domain.color,
+                border: `1px solid ${domain.color}50`, borderRadius: '7px',
+                fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem', flexShrink: 0,
+                transition: 'all 0.2s',
+              }}>
+                {editOpen ? '✕ Close Editor' : '✏️ Edit Content'}
+              </button>
+            )}
           </div>
+
+          {/* Admin mode banner */}
+          {adminMode && (
+            <div style={{ background: 'rgba(230,126,34,0.1)', border: '1px solid rgba(230,126,34,0.35)', borderRadius: '8px', padding: '0.5rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8rem', color: '#a0530a', fontWeight: 600 }}>✏️ Edit Mode — all domains unlocked. Changes saved to browser storage.</span>
+            </div>
+          )}
 
           {domain.id === 1 && (
             <div style={{ display: 'flex', gap: '0.25rem', background: '#e9ecef', borderRadius: '9px', padding: '0.25rem', marginBottom: '1.25rem' }}>
               {tabs.map(t => (
                 <button key={t.id} type="button" onClick={() => setTab(t.id)} style={{
-                  flex: 1, padding: '0.45rem 0.5rem', border: 'none',
-                  borderRadius: '7px',
+                  flex: 1, padding: '0.45rem 0.5rem', border: 'none', borderRadius: '7px',
                   background: tab === t.id ? 'white' : 'transparent',
                   color: tab === t.id ? domain.color : C.muted,
-                  fontWeight: tab === t.id ? 700 : 400,
-                  fontSize: '0.82rem', cursor: 'pointer',
-                  boxShadow: tab === t.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  transition: 'all 0.15s',
-                }}>
-                  {t.label}
-                </button>
+                  fontWeight: tab === t.id ? 700 : 400, fontSize: '0.82rem', cursor: 'pointer',
+                  boxShadow: tab === t.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none', transition: 'all 0.15s',
+                }}>{t.label}</button>
               ))}
             </div>
           )}
@@ -209,6 +247,16 @@ export default function Course({ user, profile }) {
           </div>
         </main>
       </div>
+
+      {/* Admin Edit Panel (right drawer) */}
+      {adminMode && editOpen && (
+        <AdminEditPanel
+          domain={domain}
+          week={week}
+          onSave={refreshDomains}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
     </div>
   )
 }
