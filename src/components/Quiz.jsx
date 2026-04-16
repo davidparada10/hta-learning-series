@@ -1,8 +1,12 @@
 import { useState } from 'react'
-import { C, QUIZ } from '../data/courseData'
+import { C } from '../data/courseData'
+import { QUIZZES } from '../data/quizData'
 import { supabase } from '../lib/supabase'
 
 export default function Quiz({ user, domainId = 1, weekNum = 1 }) {
+  const quizKey = `${domainId}-${weekNum}`
+  const QUIZ    = QUIZZES[quizKey] || []
+
   const [idx, setIdx]      = useState(0)
   const [sel, setSel]      = useState(null)
   const [revealed, setRev] = useState(false)
@@ -15,6 +19,16 @@ export default function Quiz({ user, domainId = 1, weekNum = 1 }) {
   const total = QUIZ.length
   const score = answers.filter((a, i) => a === QUIZ[i].a).length
   const pct   = Math.round((score / total) * 100)
+
+  if (!QUIZ.length) {
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem 1rem', color: C.muted }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📝</div>
+        <h3 style={{ color: C.navy, marginBottom: '0.5rem' }}>Quiz Coming Soon</h3>
+        <p style={{ fontSize: '0.9rem' }}>The quiz for this week is being prepared.</p>
+      </div>
+    )
+  }
 
   const choose = i => { if (!revealed) setSel(i) }
   const check  = () => setRev(true)
@@ -55,7 +69,8 @@ export default function Quiz({ user, domainId = 1, weekNum = 1 }) {
     const bg    = ok ? C.greenL : warn ? C.amberL : C.redL
     const border= ok ? C.green  : warn ? C.amber  : C.red
     const text  = ok ? '#1E8449': warn ? '#7D6608': '#C0392B'
-    const msg   = ok ? '✅ Ready to advance to Week 2!' : warn ? '📖 Review recommended before advancing' : '🔄 Retry recommended — review key concepts first'
+    const nextWk = weekNum < 12 ? `Week ${weekNum + 1}` : 'the next domain'
+    const msg   = ok ? `✅ Ready to advance to ${nextWk}!` : warn ? '📖 Review recommended before advancing' : '🔄 Retry recommended — review key concepts first'
 
     return (
       <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
@@ -92,7 +107,7 @@ export default function Quiz({ user, domainId = 1, weekNum = 1 }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: C.navy, margin: 0 }}>📝 Domain 1, Week 1 Quiz</h3>
+        <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: C.navy, margin: 0 }}>📝 Domain {domainId}, Week {weekNum} Quiz</h3>
         <span style={{ fontSize: '0.82rem', color: C.muted, fontWeight: 600 }}>{idx + 1} / {total}</span>
       </div>
 

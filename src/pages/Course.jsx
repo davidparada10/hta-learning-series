@@ -8,6 +8,7 @@ import DomainLocked from '../components/DomainLocked'
 import DomainWeek12Footer from '../components/DomainWeek12Footer'
 import AdminEditPanel from '../components/AdminEditPanel'
 import { readCompletedDomainIds, writeCompletedDomainIds, domainUnlocked } from '../lib/domainProgress'
+import { QUIZZES } from '../data/quizData'
 import { supabase } from '../lib/supabase'
 import { partnershipLineDark, builderAcademyTitleDark } from '../lib/brandStyles'
 import { getAdminMode, saveAdminMode } from '../lib/adminMode'
@@ -38,13 +39,17 @@ export default function Course({ user, profile }) {
 
   const domain     = domains[domIdx]
   const week       = domain.weeks[wkIdx]
-  const hasContent = domain.id === 1 && week.week === 1
+  const hasQuiz    = !!QUIZZES[`${domain.id}-${week.week}`]?.length
+  const hasContent = !!(week.vocabulary?.length || hasQuiz)
   const unlocked   = adminMode || domainUnlocked(domain.id, completedDomainIds)
   const weekStatusLabel = week.status === 'active' ? 'Active' : week.status === 'upcoming' ? 'Upcoming' : week.status
 
-  const tabs = hasContent
+  const isD1W1 = domain.id === 1 && week.week === 1
+  const tabs = isD1W1
     ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'proforma', label: '📊 Pro Forma' }, { id: 'caprate', label: '🔍 Cap Rates' }, { id: 'quiz', label: '📝 Quiz' }]
-    : [{ id: 'lesson', label: '📖 Lesson' }]
+    : hasQuiz
+      ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'quiz', label: '📝 Quiz' }]
+      : [{ id: 'lesson', label: '📖 Lesson' }]
 
   const switchDomain = i => { setDomIdx(i); setWkIdx(0); setTab('lesson'); setEditOpen(false) }
   const switchWeek   = i => { setWkIdx(i); setTab('lesson'); setEditOpen(false) }

@@ -1,4 +1,5 @@
 import { DOMAINS as BASE_DOMAINS } from '../data/courseData'
+import { CONTENT } from '../data/contentData'
 
 const EDITS_KEY = 'hta_course_edits'
 
@@ -20,12 +21,17 @@ export function getDomainsWithEdits() {
       description: de.description ?? d.description,
       weeks: d.weeks.map(w => {
         const we = de.weeks?.[`w${w.week}`] || {}
+        const sc = CONTENT[`${d.id}-${w.week}`] || {}
         return {
           ...w,
+          // static content from _d*.js files (lower priority than localStorage edits)
+          ...(sc.sessions   && !w.sessions   && { sessions:   sc.sessions }),
+          ...(sc.vocabulary && !w.vocabulary && { vocabulary: sc.vocabulary }),
+          // localStorage edits override everything
           title: we.title ?? w.title,
-          ...(we.sessions !== undefined && { sessions: we.sessions }),
+          ...(we.sessions   !== undefined && { sessions:   we.sessions }),
           ...(we.vocabulary !== undefined && { vocabulary: we.vocabulary }),
-          ...(we.concepts !== undefined && { concepts: we.concepts }),
+          ...(we.concepts   !== undefined && { concepts:   we.concepts }),
         }
       }),
     }
