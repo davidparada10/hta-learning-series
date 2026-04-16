@@ -16,29 +16,37 @@ export default function App() {
       return
     }
 
+    // Safety net: never stay stuck on loading screen beyond 6s
+    const timeout = setTimeout(() => setLoading(false), 6000)
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       if (session) loadProfile(session.user.id)
-      else setLoading(false)
-    })
+      else { clearTimeout(timeout); setLoading(false) }
+    }).catch(() => { clearTimeout(timeout); setLoading(false) })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       if (session) loadProfile(session.user.id)
-      else { setProfile(null); setLoading(false) }
+      else { setProfile(null); clearTimeout(timeout); setLoading(false) }
     })
 
-    return () => subscription.unsubscribe()
+    return () => { subscription.unsubscribe(); clearTimeout(timeout) }
   }, [])
 
   const loadProfile = async (userId) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    setProfile(data)
-    setLoading(false)
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      setProfile(data)
+    } catch {
+      // Profile fetch failed — continue without profile (non-fatal)
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (loading) {
