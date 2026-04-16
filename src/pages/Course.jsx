@@ -206,7 +206,7 @@ export default function Course({ user, profile }) {
             </div>
           )}
 
-          {domain.id === 1 && (
+          {tabs.length > 1 && (
             <div style={{ display: 'flex', gap: '0.25rem', background: '#e9ecef', borderRadius: '9px', padding: '0.25rem', marginBottom: '1.25rem' }}>
               {tabs.map(t => (
                 <button key={t.id} type="button" onClick={() => setTab(t.id)} style={{
@@ -225,18 +225,20 @@ export default function Course({ user, profile }) {
               <DomainLocked domain={domain} />
             ) : (
               <>
-                {domain.id === 1 ? (
+                {isD1W1 ? (
                   tab === 'lesson' ? (
                     <LessonView week={week} domainColor={domain.color} domainId={1} />
-                  ) : tab === 'proforma' && hasContent ? (
+                  ) : tab === 'proforma' ? (
                     <ProFormaTab />
-                  ) : tab === 'caprate' && hasContent ? (
+                  ) : tab === 'caprate' ? (
                     <CapRateExplorer />
-                  ) : tab === 'quiz' && hasContent ? (
+                  ) : tab === 'quiz' ? (
                     <Quiz user={user} domainId={domain.id} weekNum={week.week} />
                   ) : (
                     <LessonView week={week} domainColor={domain.color} domainId={1} />
                   )
+                ) : tab === 'quiz' && hasQuiz ? (
+                  <Quiz user={user} domainId={domain.id} weekNum={week.week} />
                 ) : (
                   <LessonView week={week} domainColor={domain.color} domainId={domain.id} />
                 )}

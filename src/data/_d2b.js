@@ -78,7 +78,7 @@ export const D2B = {
       {
         term: 'CHANGE ORDER',
         full: 'Change Order (CO)',
-        description: 'A formal written agreement between the owner and GC modifying the contract scope, price, and/or time. A change order supersedes the original contract for the changed work. All change orders must be agreed and signed before the work is performed (in theory); "constructive changes" occur when work is directed without formal CO.',
+        definition: 'A formal written agreement between the owner and GC modifying the contract scope, price, and/or time. A change order supersedes the original contract for the changed work. All change orders must be agreed and signed before the work is performed (in theory); "constructive changes" occur when work is directed without formal CO.',
         example: 'Change Order #18 added $142,000 and 12 calendar days for owner-requested lobby expansion; both parties signed the CO before the expanded work began.',
       },
       {

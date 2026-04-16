@@ -250,7 +250,7 @@ export const D2A = {
       {
         term: 'APPARENT LOW BIDDER',
         full: 'Apparent Low Bidder',
-        description: 'The bidder with the lowest stated price before scope leveling and qualification review. The apparent low bidder is not necessarily the true low bidder after leveling — an apparent low bid may include significant exclusions that, when priced, make it more expensive than a higher apparent bid.',
+        definition: 'The bidder with the lowest stated price before scope leveling and qualification review. The apparent low bidder is not necessarily the true low bidder after leveling — an apparent low bid may include significant exclusions that, when priced, make it more expensive than a higher apparent bid.',
         example: 'The apparent low bidder at $3.8M excluded fire sprinkler testing and commissioning ($95,000); after adding these items, the leveled price was $3.895M — $30,000 higher than the apparent second-low bid of $3.865M fully leveled.',
       },
       {
