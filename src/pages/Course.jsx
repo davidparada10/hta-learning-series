@@ -7,6 +7,7 @@ import Quiz from '../components/Quiz'
 import Flashcards from '../components/Flashcards'
 import ProgressDashboard from '../components/ProgressDashboard'
 import Glossary from './Glossary'
+import Certificate from './Certificate'
 import DomainLocked from '../components/DomainLocked'
 import DomainWeek12Footer from '../components/DomainWeek12Footer'
 import AdminEditPanel from '../components/AdminEditPanel'
@@ -27,7 +28,8 @@ export default function Course({ user, profile }) {
   const [domains, setDomains] = useState(getDomainsWithEdits)
   const [editOpen, setEditOpen]         = useState(false)
   const [showProgress, setShowProgress] = useState(false)
-  const [showGlossary, setShowGlossary] = useState(false)
+  const [showGlossary, setShowGlossary]         = useState(false)
+  const [showCertificate, setShowCertificate]   = useState(false)
 
   useEffect(() => {
     writeCompletedDomainIds(completedDomainIds)
@@ -77,7 +79,8 @@ export default function Course({ user, profile }) {
   const displayName = profile?.full_name || user?.email || 'Student'
   const isAdmin = profile?.role === 'admin'
 
-  if (showGlossary) return <Glossary onBack={() => setShowGlossary(false)} />
+  if (showGlossary)     return <Glossary onBack={() => setShowGlossary(false)} />
+  if (showCertificate)  return <Certificate user={user} profile={profile} domains={domains} completedDomainIds={completedDomainIds} onBack={() => setShowCertificate(false)} />
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F0F3F7' }}>
@@ -105,6 +108,14 @@ export default function Course({ user, profile }) {
             <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.65 }}>{displayName}</p>
             <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain {domain.id}, Week {week.week} · {weekStatusLabel}</p>
           </div>
+          {/* Certificate button */}
+          <button type="button" onClick={() => setShowCertificate(true)} style={{
+            fontSize: '0.75rem', fontWeight: 700, padding: '0.3rem 0.85rem', borderRadius: '6px', cursor: 'pointer',
+            background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)',
+            border: '1px solid rgba(255,255,255,0.2)', transition: 'all 0.2s',
+          }}>
+            🎓 Certificate
+          </button>
           {/* Glossary button */}
           <button type="button" onClick={() => setShowGlossary(true)} style={{
             fontSize: '0.75rem', fontWeight: 700, padding: '0.3rem 0.85rem', borderRadius: '6px', cursor: 'pointer',
