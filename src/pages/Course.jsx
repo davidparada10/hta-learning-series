@@ -4,6 +4,8 @@ import LessonView from '../components/LessonView'
 import ProFormaTab from '../components/ProFormaTab'
 import CapRateExplorer from '../components/CapRateExplorer'
 import Quiz from '../components/Quiz'
+import Flashcards from '../components/Flashcards'
+import ProgressDashboard from '../components/ProgressDashboard'
 import DomainLocked from '../components/DomainLocked'
 import DomainWeek12Footer from '../components/DomainWeek12Footer'
 import AdminEditPanel from '../components/AdminEditPanel'
@@ -22,7 +24,8 @@ export default function Course({ user, profile }) {
   const [completedDomainIds, setCompletedDomainIds] = useState(readCompletedDomainIds)
   const [adminMode, setAdminModeState] = useState(getAdminMode)
   const [domains, setDomains] = useState(getDomainsWithEdits)
-  const [editOpen, setEditOpen] = useState(false)
+  const [editOpen, setEditOpen]         = useState(false)
+  const [showProgress, setShowProgress] = useState(false)
 
   useEffect(() => {
     writeCompletedDomainIds(completedDomainIds)
@@ -39,17 +42,26 @@ export default function Course({ user, profile }) {
 
   const domain     = domains[domIdx]
   const week       = domain.weeks[wkIdx]
-  const hasQuiz    = !!QUIZZES[`${domain.id}-${week.week}`]?.length
-  const hasContent = !!(week.vocabulary?.length || hasQuiz)
-  const unlocked   = adminMode || domainUnlocked(domain.id, completedDomainIds)
+  const hasQuiz      = !!QUIZZES[`${domain.id}-${week.week}`]?.length
+  const hasVocab     = !!(week.vocabulary?.length)
+  const hasContent   = !!(hasVocab || hasQuiz)
+  const unlocked     = adminMode || domainUnlocked(domain.id, completedDomainIds)
   const weekStatusLabel = week.status === 'active' ? 'Active' : week.status === 'upcoming' ? 'Upcoming' : week.status
 
   const isD1W1 = domain.id === 1 && week.week === 1
   const tabs = isD1W1
-    ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'proforma', label: '📊 Pro Forma' }, { id: 'caprate', label: '🔍 Cap Rates' }, { id: 'quiz', label: '📝 Quiz' }]
-    : hasQuiz
-      ? [{ id: 'lesson', label: '📖 Lesson' }, { id: 'quiz', label: '📝 Quiz' }]
-      : [{ id: 'lesson', label: '📖 Lesson' }]
+    ? [
+        { id: 'lesson',    label: '📖 Lesson' },
+        { id: 'proforma',  label: '📊 Pro Forma' },
+        { id: 'caprate',   label: '🔍 Cap Rates' },
+        ...(hasVocab ? [{ id: 'flashcards', label: '🃏 Flashcards' }] : []),
+        { id: 'quiz',      label: '📝 Quiz' },
+      ]
+    : [
+        { id: 'lesson', label: '📖 Lesson' },
+        ...(hasVocab ? [{ id: 'flashcards', label: '🃏 Flashcards' }] : []),
+        ...(hasQuiz   ? [{ id: 'quiz',      label: '📝 Quiz' }]       : []),
+      ]
 
   const switchDomain = i => { setDomIdx(i); setWkIdx(0); setTab('lesson'); setEditOpen(false) }
   const switchWeek   = i => { setWkIdx(i); setTab('lesson'); setEditOpen(false) }
@@ -89,6 +101,14 @@ export default function Course({ user, profile }) {
             <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.65 }}>{displayName}</p>
             <p style={{ margin: 0, fontSize: '0.78rem', opacity: 0.85, fontWeight: 600 }}>Domain {domain.id}, Week {week.week} · {weekStatusLabel}</p>
           </div>
+          {/* Progress button */}
+          <button type="button" onClick={() => setShowProgress(true)} style={{
+            fontSize: '0.75rem', fontWeight: 700, padding: '0.3rem 0.85rem', borderRadius: '6px', cursor: 'pointer',
+            background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)',
+            border: '1px solid rgba(255,255,255,0.2)', transition: 'all 0.2s',
+          }}>
+            📊 Progress
+          </button>
           {/* Admin mode toggle */}
           <button type="button" onClick={toggleAdmin} style={{
             fontSize: '0.75rem', fontWeight: 700, padding: '0.3rem 0.85rem', borderRadius: '6px', cursor: 'pointer',
@@ -225,20 +245,14 @@ export default function Course({ user, profile }) {
               <DomainLocked domain={domain} />
             ) : (
               <>
-                {isD1W1 ? (
-                  tab === 'lesson' ? (
-                    <LessonView week={week} domainColor={domain.color} domainId={1} />
-                  ) : tab === 'proforma' ? (
-                    <ProFormaTab />
-                  ) : tab === 'caprate' ? (
-                    <CapRateExplorer />
-                  ) : tab === 'quiz' ? (
-                    <Quiz user={user} domainId={domain.id} weekNum={week.week} />
-                  ) : (
-                    <LessonView week={week} domainColor={domain.color} domainId={1} />
-                  )
-                ) : tab === 'quiz' && hasQuiz ? (
+                {tab === 'flashcards' ? (
+                  <Flashcards week={week} domainColor={domain.color} />
+                ) : tab === 'quiz' && (hasQuiz || isD1W1) ? (
                   <Quiz user={user} domainId={domain.id} weekNum={week.week} />
+                ) : tab === 'proforma' && isD1W1 ? (
+                  <ProFormaTab />
+                ) : tab === 'caprate' && isD1W1 ? (
+                  <CapRateExplorer />
                 ) : (
                   <LessonView week={week} domainColor={domain.color} domainId={domain.id} />
                 )}
@@ -254,6 +268,11 @@ export default function Course({ user, profile }) {
           </div>
         </main>
       </div>
+
+      {/* Progress Dashboard modal */}
+      {showProgress && (
+        <ProgressDashboard user={user} domains={domains} onClose={() => setShowProgress(false)} />
+      )}
 
       {/* Admin Edit Panel (right drawer) */}
       {adminMode && editOpen && (
