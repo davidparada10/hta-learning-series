@@ -10,6 +10,7 @@ import Glossary from './Glossary'
 import Certificate from './Certificate'
 import DomainLocked from '../components/DomainLocked'
 import DomainWeek12Footer from '../components/DomainWeek12Footer'
+import WeekNotes from '../components/WeekNotes'
 import AdminEditPanel from '../components/AdminEditPanel'
 import { readCompletedDomainIds, writeCompletedDomainIds, domainUnlocked } from '../lib/domainProgress'
 import { QUIZZES } from '../data/quizData'
@@ -289,6 +290,18 @@ export default function Course({ user, profile }) {
               </>
             )}
           </div>
+
+          {/* Personal notes — per-week, auto-saved to Supabase */}
+          {unlocked && (
+            <div style={{ background: 'white', borderRadius: '12px', padding: '0.85rem 1.25rem', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', marginTop: '0.85rem', borderLeft: `3px solid ${domain.color}40` }}>
+              <WeekNotes
+                user={user}
+                domainId={domain.id}
+                weekNum={week.week}
+                domainColor={domain.color}
+              />
+            </div>
+          )}
         </main>
       </div>
 
